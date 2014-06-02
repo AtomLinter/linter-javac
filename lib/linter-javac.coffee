@@ -26,10 +26,6 @@ class LinterJavac extends Linter
   destroy: ->
     atom.config.unobserve 'linter-javac.javaExecutablePath'
 
-  lintFile: (filePath, callback) ->
-    console.log 'linter: run javac-linter command'
-    exec @getCmd(filePath), {cwd: @cwd}, (error, stdout, stderr) =>
-      if stderr # hell yeah - javac spits its error-messages to the stderr.. >:)
-        @processMessage(stderr, callback)
+  errorStream: 'stderr'
 
 module.exports = LinterJavac
