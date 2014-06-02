@@ -3,7 +3,7 @@
   "linter-package": true,
   "activationEvents": [],
   "main": "./lib/init",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Lint Java on the fly, using javac",
   "repository": "https://github.com/AtomLinter/linter-javac",
   "license": "MIT",
