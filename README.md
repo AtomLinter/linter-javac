@@ -16,3 +16,6 @@ You can configure linter-javac by editing ~/.atom/config.cson (choose Open Your 
 
 ## Other available linters
 There are other linters available - take a look at the linters [mainpage](https://github.com/AtomLinter/Linter).
+
+## Donation
+[![Share the love!](https://chewbacco-stuff.s3.amazonaws.com/donate.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KXUYS4ARNHCN8)
