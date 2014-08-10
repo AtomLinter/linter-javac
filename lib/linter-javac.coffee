@@ -15,7 +15,7 @@ class LinterJavac extends Linter
   linterName: 'javac'
 
   # A regex pattern used to extract information from the executable's output.
-  regex: 'java:(?<line>\\d+): ((?<error>error)|(?<warning>warning)): (?<message>.+)\\n'
+  regex: 'java:(?<line>\\d+): ((?<error>error)|(?<warning>warning)): (?<message>.+)[\\n\\r]'
 
   constructor: (editor) ->
     super(editor)
