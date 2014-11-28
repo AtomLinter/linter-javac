@@ -11,7 +11,7 @@ This package will lint your `.java` opened files in Atom through [javac](http://
 ## Settings
 You can configure linter-javac by editing ~/.atom/config.cson (choose Open Your Config in Atom menu):
 
-    'linter-javacs':
+    'linter-javac':
       'javaExecutablePath': null # java path. run 'which javac' to find the path
 
 ## Other available linters
