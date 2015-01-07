@@ -26,7 +26,9 @@ class LinterJavac extends Linter
     #include jar libs path to javac
     jarLibs = @findJarLibs()
     if jarLibs.length > 0
-      pathJoinSep = (process.platform == "win32") ? ';' : ':'
+      pathJoinSep=':'
+      if process.platform == "win32"
+        pathJoinSep=';'
       @cmd = @cmd + ' -Djava.ext.dirs=' + (jarLibs.join pathJoinSep)
 
     atom.config.observe 'linter-javac.javaExecutablePath', =>
