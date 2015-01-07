@@ -1,6 +1,8 @@
 {exec, child} = require 'child_process'
 linterPath = atom.packages.getLoadedPackage("linter").path
 Linter = require "#{linterPath}/lib/linter"
+fs = require 'fs'
+path = require 'path'
 
 class LinterJavac extends Linter
   # The syntax that the linter handles. May be a string or
@@ -21,6 +23,12 @@ class LinterJavac extends Linter
   constructor: (editor) ->
     super(editor)
 
+    #include jar libs path to javac
+    jarLibs = @findJarLibs()
+    if jarLibs.length > 0
+      pathJoinSep = (process.platform == "win32") ? ';' : ':'
+      @cmd = @cmd + ' -Djava.ext.dirs=' + (jarLibs.join pathJoinSep)
+
     atom.config.observe 'linter-javac.javaExecutablePath', =>
       @executablePath = atom.config.get 'linter-javac.javaExecutablePath'
 
@@ -28,5 +36,22 @@ class LinterJavac extends Linter
     atom.config.unobserve 'linter-javac.javaExecutablePath'
 
   errorStream: 'stderr'
+  
+  findJarLibs: ->
+    jarLibs = []
+    searchJarLibs = (projectPath) ->
+      if fs.statSync(projectPath).isDirectory()
+        files = fs.readdirSync(projectPath);
+        files.forEach (file) ->
+          searchJarLibs path.join(projectPath, file);
+      else
+        if (projectPath.indexOf '.jar') == (projectPath.length-4)
+          libDir = path.dirname projectPath
+          if (jarLibs.indexOf libDir) < 0
+            jarLibs.push libDir
+
+    searchJarLibs atom.project.path
+    console.log 'jar libs : ', jarLibs
+    jarLibs
 
 module.exports = LinterJavac
