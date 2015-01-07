@@ -10,7 +10,8 @@ class LinterJavac extends Linter
 
   # A string, list, tuple or callable that returns a string, list or tuple,
   # containing the command line (with arguments) used to lint.
-  cmd: 'javac -Xlint:all'
+  # arg : '-J-Duser.country=US' will fix the regex match problem on non-english os -- by luo cheng
+  cmd: 'javac -Xlint:all -J-Duser.country=US'
 
   linterName: 'javac'
 
