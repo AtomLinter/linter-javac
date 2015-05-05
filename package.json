@@ -1,7 +1,7 @@
 {
   "name": "linter-javac",
   "linter-package": true,
-  "activationEvents": [],
+  "activationCommands": [],
   "main": "./lib/init",
   "version": "0.1.3",
   "description": "Lint Java on the fly, using javac",
