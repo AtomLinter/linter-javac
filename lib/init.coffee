@@ -1,6 +1,8 @@
 module.exports =
-  configDefaults:
-    javaExecutablePath: null
+  config:
+    javaExecutablePath:
+      type: 'string'
+      default: null
 
   activate: ->
     console.log 'activate linter-javac'
