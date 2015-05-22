@@ -20,11 +20,12 @@ class LinterJavac extends Linter
   constructor: (editor) ->
     super(editor)
 
-    atom.config.observe 'linter-javac.javaExecutablePath', =>
+    @configSubscription = atom.config.observe 'linter-javac.javaExecutablePath', =>
       @executablePath = atom.config.get 'linter-javac.javaExecutablePath'
 
   destroy: ->
-    atom.config.unobserve 'linter-javac.javaExecutablePath'
+    super
+    @configSubscription.dispose()
 
   errorStream: 'stderr'
 
