@@ -1,4 +1,5 @@
 {BufferedProcess, CompositeDisposable} = require 'atom'
+path = require 'path'
 
 module.exports =
 
@@ -19,28 +20,39 @@ module.exports =
 
   provideLinter: ->
     grammarScopes: ['source.java']
-    scope: 'file'
+    scope: 'project'
     lintOnFly: false       # Only lint on save
     lint: (textEditor) =>
       return new Promise (resolve, reject) =>
         filePath = textEditor.getPath()
-        messages = []
+        wd = path.dirname filePath
+        lines = []
         process = new BufferedProcess
           command: @javaExecutablePath
-          args: ['-Xlint:all', filePath]
+          args: ['-Xlint:all', '-cp', wd, filePath]
           stderr: (data) ->
-            # Regex to match the entire error/warning message including the caret (^)
-            # that points to the location of the issue in the source line.
-            regex = /java:(\d+): (error|warning): (.+)\r?\n.*\r?\n( *)\^/g
-            while match = regex.exec(data)
-              messages.push
-                type: match[2],       # Should be "error" or "warning"
-                text: match[3],       # The error message
-                filePath: filePath,   # Full path to file
-                # match[1] contains the line number, and match[4] is the number of
-                # spaces before the caret, which is the column number.
-                range: [[match[1] - 1, match[4].length], [match[1] - 1, match[4].length + 1]]
+            lines = lines.concat(data.split /\r?\n/)
+
           exit: (code) ->
+            # Regex to match the error/warning line
+            regex = /^(.*\.java):(\d+): (error|warning): (.+)/
+            # This regex helps to estimate the column number based on the caret (^) location
+            caretRegex = /^( *)\^/
+            messages = []
+            for line in lines
+              if line.match regex
+                [file, line, type, mess] = line.match(regex)[1..4]
+                messages.push
+                  type: type,       # Should be "error" or "warning"
+                  text: mess,       # The error message
+                  filePath: file,   # Full path to file
+                  range: [[line - 1, 0], [line - 1, 0]]
+              else if line.match caretRegex
+                column = line.match(caretRegex)[1].length
+                if messages.length > 0
+                  messages[messages.length - 1].range[0][1] = column
+                  messages[messages.length - 1].range[1][1] = column + 1
+
             resolve messages
 
         process.onWillThrowError ({error, handle}) ->
