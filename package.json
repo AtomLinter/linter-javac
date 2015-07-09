@@ -1,6 +1,5 @@
 {
   "name": "linter-javac",
-  "linter-package": true,
   "main": "./lib/init",
   "version": "0.1.4",
   "description": "Lint Java on the fly, using javac",
@@ -11,5 +10,12 @@
   },
   "dependencies": {
     "shelljs": "^0.2.6"
+  },
+  "providedServices": {
+    "linter": {
+      "versions": {
+        "1.0.0": "provideLinter"
+      }
+    }
   }
 }
