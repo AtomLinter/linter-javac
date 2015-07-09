@@ -6,7 +6,7 @@ module.exports =
     javaExecutablePath:
       type: 'string'
       title: 'Path to the javac executable'
-      default: '/usr/bin/javac'
+      default: 'javac'
 
   activate: ->
     @subscriptions = new CompositeDisposable
@@ -20,7 +20,7 @@ module.exports =
   provideLinter: ->
     grammarScopes: ['source.java']
     scope: 'file'
-    lintOnFly: true
+    lintOnFly: false       # Only lint on save
     lint: (textEditor) =>
       return new Promise (resolve, reject) =>
         filePath = textEditor.getPath()
@@ -34,8 +34,9 @@ module.exports =
             regex = /java:(\d+): (error|warning): (.+)\r?\n.*\r?\n( *)\^/g
             while match = regex.exec(data)
               messages.push
-                type: match[2],  # Should be "error" or "warning"
-                text: match[3],  # The error message
+                type: match[2],       # Should be "error" or "warning"
+                text: match[3],       # The error message
+                filePath: filePath,   # Full path to file
                 # match[1] contains the line number, and match[4] is the number of
                 # spaces before the caret, which is the column number.
                 range: [[match[1] - 1, match[4].length], [match[1] - 1, match[4].length + 1]]
