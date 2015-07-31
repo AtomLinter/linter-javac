@@ -29,13 +29,8 @@ module.exports =
       #  TODO: Make the classpath user configurable.
       args = ['-Xlint:all', '-cp', wd, filePath]
       messages = []
-      helpers.exec(@javaExecutablePath, args, {throwOnStdErr: false, stream: 'stderr'})
+      helpers.exec(@javaExecutablePath, args, {stream: 'stderr'})
         .then (val) => return @parse(val, textEditor)
-        .catch (val) =>
-          atom.notifications.addError "An error occured running '#{@javaExecutablePath}'",
-            detail: val
-            dismissable: true
-          return []
 
   parse: (javacOutput, textEditor) =>
     # Regex to match the error/warning line
