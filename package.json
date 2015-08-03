@@ -1,15 +1,21 @@
 {
   "name": "linter-javac",
-  "linter-package": true,
   "main": "./lib/init",
-  "version": "0.1.4",
-  "description": "Lint Java on the fly, using javac",
+  "version": "0.2.0",
+  "description": "Lint Java using javac",
   "repository": "https://github.com/AtomLinter/linter-javac",
   "license": "MIT",
   "engines": {
     "atom": ">0.50.0"
   },
   "dependencies": {
-    "shelljs": "^0.2.6"
+    "atom-linter": ">=3.0.0"
+  },
+  "providedServices": {
+    "linter": {
+      "versions": {
+        "1.0.0": "provideLinter"
+      }
+    }
   }
 }
