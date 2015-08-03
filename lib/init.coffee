@@ -32,10 +32,11 @@ module.exports =
       helpers.exec(@javaExecutablePath, args, {stream: 'stderr'})
         .then (val) => return @parse(val, textEditor)
 
-  parse: (javacOutput, textEditor) =>
+  parse: (javacOutput, textEditor) ->
     # Regex to match the error/warning line
     errRegex = /^(.*\.java):(\d+): (error|warning): (.+)/
-    # This regex helps to estimate the column number based on the caret (^) location
+    # This regex helps to estimate the column number based on the
+    #   caret (^) location.
     caretRegex = /^( *)\^/
     # Split into lines
     lines = javacOutput.split /\r?\n/
