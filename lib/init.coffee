@@ -38,7 +38,6 @@ module.exports =
       cp += path.delimiter + @classpath if @classpath
       cp += path.delimiter + process.env.CLASSPATH if process.env.CLASSPATH
       args = ['-Xlint:all', '-cp', cp, filePath]
-      messages = []
       helpers.exec(@javaExecutablePath, args, {stream: 'stderr'})
         .then (val) => return @parse(val, textEditor)
 
