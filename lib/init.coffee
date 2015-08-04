@@ -27,7 +27,8 @@ module.exports =
       wd = path.dirname filePath
       # Use the text editor's working directory as the classpath.
       #  TODO: Make the classpath user configurable.
-      args = ['-Xlint:all', '-cp', wd, filePath]
+      classpath = process.env.CLASSPATH
+      args = ['-Xlint:all', '-cp', wd + ":" + classpath, filePath]
       messages = []
       helpers.exec(@javaExecutablePath, args, {stream: 'stderr'})
         .then (val) => return @parse(val, textEditor)
