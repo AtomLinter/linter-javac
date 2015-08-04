@@ -8,12 +8,19 @@ module.exports =
       type: 'string'
       title: 'Path to the javac executable'
       default: 'javac'
+    classpath:
+      type: 'string'
+      title: "Extra classpath for javac"
+      default: ''
 
   activate: ->
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.config.observe 'linter-javac.javaExecutablePath',
       (newValue) =>
         @javaExecutablePath = newValue
+    @subscriptions.add atom.config.observe 'linter-javac.classpath',
+      (newValue) =>
+        @classpath = newValue.trim()
 
   deactivate: ->
     @subscriptions.dispose()
@@ -25,9 +32,11 @@ module.exports =
     lint: (textEditor) =>
       filePath = textEditor.getPath()
       wd = path.dirname filePath
-      # Use the text editor's working directory as the classpath.
-      #  TODO: Make the classpath user configurable.
-      args = ['-Xlint:all', '-cp', wd, filePath]
+      # Use the text editor's working directory as the classpath, and add user's
+      # classpath (if it exists).
+      cp = wd
+      cp += path.delimiter + @classpath if @classpath
+      args = ['-Xlint:all', '-cp', cp, filePath]
       messages = []
       helpers.exec(@javaExecutablePath, args, {stream: 'stderr'})
         .then (val) => return @parse(val, textEditor)
