@@ -33,9 +33,10 @@ module.exports =
       filePath = textEditor.getPath()
       wd = path.dirname filePath
       # Use the text editor's working directory as the classpath, and add user's
-      # classpath (if it exists).
+      # classpath (if it exists) and/or environment variable
       cp = wd
       cp += path.delimiter + @classpath if @classpath
+      cp += path.delimiter + process.env.CLASSPATH if process.env.CLASSPATH
       args = ['-Xlint:all', '-cp', cp, filePath]
       messages = []
       helpers.exec(@javaExecutablePath, args, {stream: 'stderr'})
