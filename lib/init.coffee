@@ -34,7 +34,7 @@ module.exports =
 
   parse: (javacOutput, textEditor) ->
     # Regex to match the error/warning line
-    errRegex = /^(.*\.java):(\d+): (.+): (.+)/
+    errRegex = /^(.*\.java):(\d+): ([\w \-]+): (.+)/
     # This regex helps to estimate the column number based on the
     #   caret (^) location.
     caretRegex = /^( *)\^/
