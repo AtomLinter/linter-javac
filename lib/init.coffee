@@ -1,6 +1,8 @@
 {BufferedProcess, CompositeDisposable} = require 'atom'
 path = require 'path'
 helpers = require 'atom-linter'
+CSON = require 'season'
+configFileName = '.linter-javac.cson'
 
 module.exports =
   config:
@@ -32,14 +34,28 @@ module.exports =
     lint: (textEditor) =>
       filePath = textEditor.getPath()
       wd = path.dirname filePath
-      # Use the text editor's working directory as the classpath, and add user's
-      # classpath (if it exists) and/or environment variable
-      cp = wd
+
+      # Classpath
+      cp = null
+
+      # Find project config file if it exists.
+      {cfg, cfgDir} = @findConfig(wd)
+      if cfg?
+        # Use the location of the config file as the working directory
+        wd = cfgDir if cfgDir?
+        # Get classpath configuration if provided
+        cp = cfg.classpath if cfg.classpath?
+
+      # Add extra classpath if provided
       cp += path.delimiter + @classpath if @classpath
+
+      # Add environment variable if it exists
       cp += path.delimiter + process.env.CLASSPATH if process.env.CLASSPATH
-      args = ['-Xlint:all', '-cp', cp, filePath]
-      
-      helpers.exec(@javaExecutablePath, args, {stream: 'stderr'})
+
+      args = ['-Xlint:all']
+      args = args.concat(['-cp', cp]) if cp?
+      args.push filePath
+      helpers.exec(@javaExecutablePath, args, {stream: 'stderr', cwd: wd})
         .then (val) => return @parse(val, textEditor)
 
   parse: (javacOutput, textEditor) ->
@@ -65,3 +81,15 @@ module.exports =
           messages[messages.length - 1].range[0][1] = column
           messages[messages.length - 1].range[1][1] = column + 1
     return messages
+
+  findConfig: (d) ->
+    # Search for the .linter-javac.cson file starting in the given directory
+    # and searching parent directories until it is found, or we go outside the
+    # project base directory.
+    while atom.project.contains(d) or (d in atom.project.getPaths())
+      try
+        return { cfg: CSON.readFileSync( path.join(d, configFileName) ), cfgDir: d }
+      catch e
+        d = path.dirname(d)
+
+    return {cfg: null, cfgDir: null}
