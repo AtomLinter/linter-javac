@@ -1,6 +1,8 @@
 {BufferedProcess, CompositeDisposable} = require 'atom'
 path = require 'path'
 helpers = require 'atom-linter'
+fs = require 'fs'
+cpConfigFileName = '.classpath'
 
 module.exports =
   config:
@@ -32,14 +34,31 @@ module.exports =
     lint: (textEditor) =>
       filePath = textEditor.getPath()
       wd = path.dirname filePath
-      # Use the text editor's working directory as the classpath, and add user's
-      # classpath (if it exists) and/or environment variable
-      cp = wd
+
+      # Classpath
+      cp = null
+
+      # Find project config file if it exists.
+      cpConfig = @findClasspathConfig(wd)
+      if cpConfig?
+        # Use the location of the config file as the working directory
+        wd = cpConfig.cfgDir
+        # Use configured classpath
+        cp = cpConfig.cfgCp
+
+      # Add extra classpath if provided
       cp += path.delimiter + @classpath if @classpath
+
+      # Add environment variable if it exists
       cp += path.delimiter + process.env.CLASSPATH if process.env.CLASSPATH
-      args = ['-Xlint:all', '-cp', cp, filePath]
-      
-      helpers.exec(@javaExecutablePath, args, {stream: 'stderr'})
+
+      # Arguments to javac
+      args = ['-Xlint:all']
+      args = args.concat(['-cp', cp]) if cp?
+      args.push filePath
+
+      # Execute javac
+      helpers.exec(@javaExecutablePath, args, {stream: 'stderr', cwd: wd})
         .then (val) => return @parse(val, textEditor)
 
   parse: (javacOutput, textEditor) ->
@@ -65,3 +84,19 @@ module.exports =
           messages[messages.length - 1].range[0][1] = column
           messages[messages.length - 1].range[1][1] = column + 1
     return messages
+
+  findClasspathConfig: (d) ->
+    # Search for the .classpath file starting in the given directory
+    # and searching parent directories until it is found, or we go outside the
+    # project base directory.
+    while atom.project.contains(d) or (d in atom.project.getPaths())
+      try
+        result =
+          cfgCp: fs.readFileSync( path.join(d, cpConfigFileName), { encoding: 'utf-8' } )
+          cfgDir: d
+        result.cfgCp = result.cfgCp.trim()
+        return result
+      catch e
+        d = path.dirname(d)
+
+    return null
