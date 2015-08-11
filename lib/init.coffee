@@ -34,7 +34,7 @@ module.exports =
     lint: (textEditor) =>
       filePath = textEditor.getPath()
       wd = path.dirname filePath
-
+      files = @getFilesEndingWith(@getProjectRootDir(), ".java")
       # Classpath
       cp = null
 
@@ -55,7 +55,7 @@ module.exports =
       # Arguments to javac
       args = ['-Xlint:all']
       args = args.concat(['-cp', cp]) if cp?
-      args.push filePath
+      args.push.apply(args, files)
 
       # Execute javac
       helpers.exec(@javaExecutablePath, args, {stream: 'stderr', cwd: wd})
@@ -84,6 +84,27 @@ module.exports =
           messages[messages.length - 1].range[0][1] = column
           messages[messages.length - 1].range[1][1] = column + 1
     return messages
+
+  getProjectRootDir: ->
+    return atom.project.rootDirectories[0].path
+
+  getFilesEndingWith: (startPath, endsWith) ->
+    foundFiles = []
+    if !fs.existsSync(startPath)
+      return
+    files = fs.readdirSync(startPath)
+    i = 0
+    while i < files.length
+      filename = path.join(startPath, files[i])
+      stat = fs.lstatSync(filename)
+      if stat.isDirectory()
+        foundFiles.push.apply(foundFiles, @getFilesEndingWith(filename, endsWith))
+      else if filename.indexOf(endsWith, filename.length - (endsWith.length)) >= 0
+        foundFiles.push.apply(foundFiles, [filename])
+        #Array::push.apply foundFiles, filename
+      i++
+    return foundFiles
+
 
   findClasspathConfig: (d) ->
     # Search for the .classpath file starting in the given directory
