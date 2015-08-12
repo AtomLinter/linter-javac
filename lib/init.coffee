@@ -91,7 +91,7 @@ module.exports =
   getFilesEndingWith: (startPath, endsWith) ->
     foundFiles = []
     if !fs.existsSync(startPath)
-      return
+      return foundFiles
     files = fs.readdirSync(startPath)
     i = 0
     while i < files.length
