@@ -2,10 +2,11 @@
 
 This package will lint your `.java` opened files in Atom through [javac](http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html).
 
+This package will ensure all dependencies are installed on activation.
+
 ## Installation
 
 * Install [java](http://www.java.com/).
-* `$ apm install linter` (if you don't have [AtomLinter/Linter](https://github.com/AtomLinter/Linter) installed).
 * `$ apm install linter-javac`
 
 ## Settings
