@@ -46,6 +46,8 @@ module.exports =
         wd = cpConfig.cfgDir
         # Use configured classpath
         cp = cpConfig.cfgCp
+        # Use config file location to import correct files
+        files = @getFilesEndingWith(wd, ".java")
 
       # Add extra classpath if provided
       cp += path.delimiter + @classpath if @classpath
