@@ -89,7 +89,18 @@ module.exports =
     return messages
 
   getProjectRootDir: ->
-    return atom.project.rootDirectories[0].path
+    textEditor = atom.workspace.getActiveTextEditor()
+    if !textEditor || !textEditor.getPath()
+      # default to building the first one if no editor is active
+      if (0 == atom.project.getPaths().length)
+        return false;
+
+      return atom.project.getPaths()[0];
+
+    # otherwise, build the one in the root of the active editor
+    return atom.project.getPaths().sort((a, b) => (b.length - a.length)).find (p) =>
+      realpath = fs.realpathSync(p);
+      return textEditor.getPath().substr(0, realpath.length) == realpath;
 
   getFilesEndingWith: (startPath, endsWith) ->
     foundFiles = []
