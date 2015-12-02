@@ -1,4 +1,4 @@
-{Directory, BufferedProcess, CompositeDisposable} = require 'atom'
+{Directory, CompositeDisposable} = require 'atom'
 path = require 'path'
 helpers = require 'atom-linter'
 voucher = require 'voucher'
@@ -99,22 +99,24 @@ module.exports =
     if !textEditor || !textEditor.getPath()
       # default to building the first one if no editor is active
       if (0 == atom.project.getPaths().length)
-        return false;
+        return false
 
-      return atom.project.getPaths()[0];
+      return atom.project.getPaths()[0]
 
     # otherwise, build the one in the root of the active editor
-    return atom.project.getPaths().sort((a, b) => (b.length - a.length)).find (p) =>
-      realpath = fs.realpathSync(p);
-      return textEditor.getPath().substr(0, realpath.length) == realpath;
+    return atom.project.getPaths()
+      .sort((a, b) -> (b.length - a.length))
+      .find (p) ->
+        realpath = fs.realpathSync(p)
+        return textEditor.getPath().substr(0, realpath.length) == realpath
 
   getFilesEndingWith: (startPath, endsWith, ignoreFn) ->
     foundFiles = []
     folderFiles = []
     voucher fs.readdir, startPath
-      .then (files) =>
+      .then (files) ->
         folderFiles = files
-        Promise.all files.map (f) =>
+        Promise.all files.map (f) ->
           filename = path.join startPath, f
           voucher fs.lstat, filename
       .then (fileStats) =>
@@ -124,10 +126,10 @@ module.exports =
             return undefined
           else if stats.isDirectory()
             return @getFilesEndingWith filename, endsWith, ignoreFn
-          else if filename.indexOf(endsWith, filename.length - (endsWith.length)) >= 0
+          else if filename.endsWith(endsWith)
             return [ filename ]
 
-        Promise.all(mapped.filter(Boolean));
+        Promise.all(mapped.filter(Boolean))
 
       .then (fileArrays) ->
         [].concat.apply([], fileArrays)
@@ -138,8 +140,9 @@ module.exports =
     # project base directory.
     while atom.project.contains(d) or (d in atom.project.getPaths())
       try
+        file = path.join d, cpConfigFileName
         result =
-          cfgCp: fs.readFileSync( path.join(d, cpConfigFileName), { encoding: 'utf-8' } )
+          cfgCp: fs.readFileSync(file, { encoding: 'utf-8' })
           cfgDir: d
         result.cfgCp = result.cfgCp.trim()
         return result
