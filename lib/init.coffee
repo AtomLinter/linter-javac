@@ -1,6 +1,7 @@
-{BufferedProcess, CompositeDisposable} = require 'atom'
+{Directory, BufferedProcess, CompositeDisposable} = require 'atom'
 path = require 'path'
 helpers = require 'atom-linter'
+voucher = require 'voucher'
 fs = require 'fs'
 cpConfigFileName = '.classpath'
 
@@ -35,7 +36,7 @@ module.exports =
     lint: (textEditor) =>
       filePath = textEditor.getPath()
       wd = path.dirname filePath
-      files = @getFilesEndingWith(@getProjectRootDir(), ".java")
+      searchDir = @getProjectRootDir()
       # Classpath
       cp = null
 
@@ -47,7 +48,7 @@ module.exports =
         # Use configured classpath
         cp = cpConfig.cfgCp
         # Use config file location to import correct files
-        files = @getFilesEndingWith(wd, ".java")
+        searchDir = wd
 
       # Add extra classpath if provided
       cp += path.delimiter + @classpath if @classpath
@@ -55,14 +56,19 @@ module.exports =
       # Add environment variable if it exists
       cp += path.delimiter + process.env.CLASSPATH if process.env.CLASSPATH
 
-      # Arguments to javac
-      args = ['-Xlint:all']
-      args = args.concat(['-cp', cp]) if cp?
-      args.push.apply(args, files)
+      atom.project.repositoryForDirectory(new Directory(searchDir))
+        .then (repo) =>
+          @getFilesEndingWith searchDir, '.java', repo.isPathIgnored.bind(repo)
+        .then (files) =>
+          # Arguments to javac
+          args = ['-Xlint:all']
+          args = args.concat(['-cp', cp]) if cp?
+          args.push.apply(args, files)
 
-      # Execute javac
-      helpers.exec(@javaExecutablePath, args, {stream: 'stderr', cwd: wd})
-        .then (val) => return @parse(val, textEditor)
+          # Execute javac
+          helpers.exec(@javaExecutablePath, args, {stream: 'stderr', cwd: wd})
+            .then (val) =>
+              @parse(val, textEditor)
 
   parse: (javacOutput, textEditor) ->
     # Regex to match the error/warning line
@@ -102,23 +108,29 @@ module.exports =
       realpath = fs.realpathSync(p);
       return textEditor.getPath().substr(0, realpath.length) == realpath;
 
-  getFilesEndingWith: (startPath, endsWith) ->
+  getFilesEndingWith: (startPath, endsWith, ignoreFn) ->
     foundFiles = []
-    if !fs.existsSync(startPath)
-      return foundFiles
-    files = fs.readdirSync(startPath)
-    i = 0
-    while i < files.length
-      filename = path.join(startPath, files[i])
-      stat = fs.lstatSync(filename)
-      if stat.isDirectory()
-        foundFiles.push.apply(foundFiles, @getFilesEndingWith(filename, endsWith))
-      else if filename.indexOf(endsWith, filename.length - (endsWith.length)) >= 0
-        foundFiles.push.apply(foundFiles, [filename])
-        #Array::push.apply foundFiles, filename
-      i++
-    return foundFiles
+    folderFiles = []
+    voucher fs.readdir, startPath
+      .then (files) =>
+        folderFiles = files
+        Promise.all files.map (f) =>
+          filename = path.join startPath, f
+          voucher fs.lstat, filename
+      .then (fileStats) =>
+        mapped = fileStats.map (stats, i) =>
+          filename = path.join startPath, folderFiles[i]
+          if ignoreFn(filename)
+            return undefined
+          else if stats.isDirectory()
+            return @getFilesEndingWith filename, endsWith, ignoreFn
+          else if filename.indexOf(endsWith, filename.length - (endsWith.length)) >= 0
+            return [ filename ]
 
+        Promise.all(mapped.filter(Boolean));
+
+      .then (fileArrays) ->
+        [].concat.apply([], fileArrays)
 
   findClasspathConfig: (d) ->
     # Search for the .classpath file starting in the given directory
