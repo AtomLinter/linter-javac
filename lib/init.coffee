@@ -58,7 +58,7 @@ module.exports =
 
       atom.project.repositoryForDirectory(new Directory(searchDir))
         .then (repo) =>
-          @getFilesEndingWith searchDir, '.java', repo.isPathIgnored.bind(repo)
+          @getFilesEndingWith searchDir, '.java', repo?.isPathIgnored.bind(repo)
         .then (files) =>
           # Arguments to javac
           args = ['-Xlint:all']
@@ -122,7 +122,7 @@ module.exports =
       .then (fileStats) =>
         mapped = fileStats.map (stats, i) =>
           filename = path.join startPath, folderFiles[i]
-          if ignoreFn(filename)
+          if ignoreFn?(filename)
             return undefined
           else if stats.isDirectory()
             return @getFilesEndingWith filename, endsWith, ignoreFn
