@@ -15,7 +15,7 @@ os:
 env:
   global:
     - APM_TEST_PACKAGES=""
-    - CHROME_DEVEL_SANDBOX=""
+    - CHROME_DEVEL_SANDBOX="/usr/local/sbin/chrome-devel-sandbox"
 
   matrix:
     - ATOM_CHANNEL=stable
