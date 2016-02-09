@@ -19,7 +19,6 @@ os:
 env:
   global:
     - APM_TEST_PACKAGES=""
-    - CHROME_DEVEL_SANDBOX=""
 
   matrix:
     - ATOM_CHANNEL=stable
