@@ -5,9 +5,12 @@ describe 'linter-javac', ->
   describe 'parse()', ->
     describe 'when using a faulty java-source file', ->
       it 'returns all bugs in the linter-message-array', ->
+        expect(true).toBe false
 
     describe 'when using a correct java-source file', ->
       it 'returns an empty linter-message-array', ->
+        expect(true).toBe false
 
     describe 'when using an empty java-source file', ->
       it 'returns an empty linter-message-array', ->
+        expect(true).toBe false
