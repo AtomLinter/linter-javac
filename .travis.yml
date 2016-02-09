@@ -2,11 +2,6 @@ notifications:
   email:
     on_success: never
     on_failure: change
-branches:
-  only:
-    - master
-    - /^prepare-.*$/
-    - /^iss.*$/
 script: 'curl -s https://raw.githubusercontent.com/atom/ci/master/build-package.sh | sh'
 git:
   depth: 10
