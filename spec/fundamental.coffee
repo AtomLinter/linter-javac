@@ -2,7 +2,7 @@
 # this plugin.
 
 describe 'linter-javac', ->
-  describe 'parse()', ->
+  describe 'provideLinter()', ->
     describe 'when using a faulty java-source file', ->
       it 'returns all bugs in the linter-message-array', ->
         expect(true).toBe false
