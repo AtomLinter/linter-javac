@@ -1,6 +1,8 @@
 # This file contains all specs to ensure the fundamental functionality of
 # this plugin.
 
+_path = require 'path'
+
 describe 'linter-javac', ->
   describe 'provideLinter()', ->
     describe 'when using a faulty java-source file', ->
