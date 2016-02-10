@@ -22,6 +22,8 @@ matrix:
       language: cpp
     - os: osx
       language: objective-c
-  env:
+
+env:
+  matrix:
     - ATOM_CHANNEL=stable APM_TEST_PACKAGES="" CHROME_DEVEL_SANDBOX=""
     - ATOM_CHANNEL=beta APM_TEST_PACKAGES="" CHROME_DEVEL_SANDBOX=""
