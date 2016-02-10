@@ -23,9 +23,5 @@ matrix:
     - os: osx
       language: objective-c
   env:
-    - ATOM_CHANNEL=stable
-    - ATOM_CHANNEL=beta
-
-env:
-  - APM_TEST_PACKAGES=""
-  - CHROME_DEVEL_SANDBOX=""
+    - ATOM_CHANNEL=stable APM_TEST_PACKAGES="" CHROME_DEVEL_SANDBOX=""
+    - ATOM_CHANNEL=beta APM_TEST_PACKAGES="" CHROME_DEVEL_SANDBOX=""
