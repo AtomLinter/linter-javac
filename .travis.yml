@@ -26,7 +26,6 @@ matrix:
     - ATOM_CHANNEL=stable
     - ATOM_CHANNEL=beta
 
-global:
-  env:
-    - APM_TEST_PACKAGES=""
-    - CHROME_DEVEL_SANDBOX=""
+env:
+  - APM_TEST_PACKAGES=""
+  - CHROME_DEVEL_SANDBOX=""
