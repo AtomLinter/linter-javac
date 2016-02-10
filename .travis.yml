@@ -1,3 +1,5 @@
+language: cpp
+
 notifications:
   email:
     on_success: never
@@ -8,12 +10,18 @@ script: 'curl -s https://raw.githubusercontent.com/atom/ci/master/build-package.
 git:
   depth: 10
 
+os:
+  - linux
+  - osx
+
 matrix:
   include:
     - os: linux
       dist: trusty
       sudo: required
+      language: cpp
     - os: osx
+      language: objective-c
 
 env:
   global:
