@@ -1,0 +1,28 @@
+BrokenWorld.java:1: error: class, interface, or enum expected
+*
+^
+BrokenWorld.java:2: error: class, interface, or enum expected
+  This world is realistic.
+  ^
+BrokenWorld.java:4: error: '{' expected
+public class BrokenWorld
+                        ^
+BrokenWorld.java:7: error: ']' expected
+  public static void main (String[ args)
+                                  ^
+BrokenWorld.java:9: error: illegal start of expression
+    / This prints "Hello World!":
+    ^
+BrokenWorld.java:9: error: ';' expected
+    / This prints "Hello World!":
+          ^
+BrokenWorld.java:9: error: not a statement
+    / This prints "Hello World!":
+           ^
+BrokenWorld.java:9: error: ';' expected
+    / This prints "Hello World!":
+                 ^
+BrokenWorld.java:10: error: ';' expected
+    System.out.println("Hello World!")
+                                      ^
+9 errors
