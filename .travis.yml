@@ -20,13 +20,15 @@ matrix:
       dist: trusty
       sudo: required
       language: cpp
+      env: APM_TEST_PACKAGES="" CHROME_DEVEL_SANDBOX=""
     - os: osx
       language: objective-c
+      env: APM_TEST_PACKAGES="" CHROME_DEVEL_SANDBOX=""
 
 env:
   matrix:
-    - ATOM_CHANNEL=stable APM_TEST_PACKAGES="" CHROME_DEVEL_SANDBOX=""
-    - ATOM_CHANNEL=beta APM_TEST_PACKAGES="" CHROME_DEVEL_SANDBOX=""
+    - ATOM_CHANNEL=stable
+    - ATOM_CHANNEL=beta
 
 addons:
   apt:
