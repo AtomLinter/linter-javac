@@ -4,23 +4,62 @@
 _path = require 'path'
 
 
-_helpers = require _path.join(__dirname, '_helpers.coffee')
-
+_helpers = require _path.join(__dirname, '_spec-helpers.coffee')
 
 describe 'linter-javac', ->
   describe 'provideLinter()', ->
     beforeEach ->
-      @linter = require _path.join(__dirname, '..', 'lib', 'init.coffee')
-      @texteditor = _helpers.texteditorFactory _path.join(__dirname, 'fixtures')
+      # get linter-module
+      linterJavac = require(
+        _path.join(__dirname, '..', 'lib', 'init.coffee')
+      )
+
+      # inject javaExecutablePath
+      linterJavac.javaExecutablePath = 'javac'
+
+      # instantiate linter-worker
+      @linter = linterJavac.provideLinter()
+
+      # stab texteditor, to assure stubbing
+      @texteditor = null
+
 
     describe 'when using a faulty java-source file', ->
-      it 'returns all bugs in the linter-message-array', ->
-        expect(true).toBe false
+      beforeEach ->
+        # set proper texteditor-path to the faulty fixture
+        @texteditor = _helpers.texteditorFactory(
+          _path.join(__dirname, 'fixtures', 'broken-world.java')
+        )
+
+      it 'returns 9 messages in the linter-message-object', ->
+        waitsForPromise( =>
+          @linter.lint(@texteditor).then( (messages) ->
+            expect(messages.length).toEqual(9)
+          )
+        )
+
 
     describe 'when using a correct java-source file', ->
-      it 'returns an empty linter-message-array', ->
-        expect(true).toBe false
+      beforeEach ->
+        # set a proper texteditor-path to the working fixture
+        @texteditor = _helpers.texteditorFactory(
+          _path.join(__dirname, 'fixtures', 'hello-world.java')
+        )
+
+      it 'returns an empty linter-message-object', ->
+        result = {}
+        expect(JSON.stringify(@linter.lint(@texteditor)))
+          .toEqual(JSON.stringify(result))
+
 
     describe 'when using an empty java-source file', ->
-      it 'returns an empty linter-message-array', ->
-        expect(true).toBe false
+      beforeEach ->
+        # set a proper texteditor-path to the empty fixture
+        @texteditor = _helpers.texteditorFactory(
+          _path.join(__dirname, 'fixtures', 'empty-world.java')
+        )
+
+      it 'returns an empty linter-message-object', ->
+        result = {}
+        expect(JSON.stringify(@linter.lint(@texteditor)))
+          .toEqual(JSON.stringify(result))
