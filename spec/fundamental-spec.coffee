@@ -3,11 +3,14 @@
 
 _path = require 'path'
 
+
 _helpers = require _path.join(__dirname, '_helpers.coffee')
+
 
 describe 'linter-javac', ->
   describe 'provideLinter()', ->
     beforeEach ->
+      @linter = require _path.join(__dirname, '..', 'lib', 'init.coffee')
       @texteditor = _helpers.texteditorFactory _path.join(__dirname, 'fixtures')
 
     describe 'when using a faulty java-source file', ->
