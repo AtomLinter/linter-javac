@@ -11,13 +11,12 @@ git:
   depth: 10
 
 matrix:
-  include:
-    - os: linux
-      dist: trusty
-      sudo: required
-      language: cpp
-    - os: osx
-      language: objective-c
+  - os: linux
+    dist: trusty
+    sudo: required
+    language: cpp
+  - os: osx
+    language: objective-c
 
 env:
   global:
