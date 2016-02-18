@@ -15,16 +15,32 @@ module.exports =
       type: 'string'
       title: "Extra classpath for javac"
       default: ''
+    additionalJavacOptions:
+      type: 'string'
+      default: ''
+      description: 'Your additional options will be inserted between
+      the javac-command and the sourcefiles. Example: `-d /root/class-cache`
+      will become `javac -Xlint:all -d /root/class-cache .../Test.java`
+      take a look to the  [javac-docs](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html)
+      for further information on valid options. Keep in mind that placeholder
+      like `~` do **not** work.'
 
   activate: ->
     require('atom-package-deps').install()
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.config.observe 'linter-javac.javaExecutablePath',
       (newValue) =>
-        @javaExecutablePath = newValue
+        @javaExecutablePath = newValue.trim()
     @subscriptions.add atom.config.observe 'linter-javac.classpath',
       (newValue) =>
         @classpath = newValue.trim()
+    @subscriptions.add atom.config.observe 'linter-javac.additionalJavacOptions',
+      (newValue) =>
+        trimmedValue = newValue.trim()
+        if trimmedValue
+          @additionalOptions = trimmedValue.split(/\s+/)
+        else
+          @additionalOptions = []
 
   deactivate: ->
     @subscriptions.dispose()
@@ -38,7 +54,7 @@ module.exports =
       wd = path.dirname filePath
       searchDir = @getProjectRootDir()
       # Classpath
-      cp = null
+      cp = ''
 
       # Find project config file if it exists.
       cpConfig = @findClasspathConfig(wd)
@@ -62,7 +78,12 @@ module.exports =
         .then (files) =>
           # Arguments to javac
           args = ['-Xlint:all']
-          args = args.concat(['-cp', cp]) if cp?
+          args = args.concat(['-cp', cp]) if cp
+
+          # add additional options to the args-array
+          if @additionalOptions.length > 0
+            args = args.concat @additionalOptions
+
           args.push.apply(args, files)
 
           # Execute javac
