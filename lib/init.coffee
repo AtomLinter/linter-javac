@@ -20,7 +20,7 @@ module.exports =
       default: ''
       description: 'Your additional options will be inserted between
       the javac-command and the sourcefiles. Example: `-d /root/class-cache`
-      will become `javac -d /root/class-cache .../Test.java`
+      will become `javac -Xlint:all -d /root/class-cache .../Test.java`
       take a look to the  [javac-docs](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html)
       for further information on valid options. Keep in mind that placeholder
       like `~` do **not** work.'
