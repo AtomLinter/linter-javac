@@ -30,7 +30,7 @@ module.exports =
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.config.observe 'linter-javac.javaExecutablePath',
       (newValue) =>
-        @javaExecutablePath = newValue
+        @javaExecutablePath = newValue.trim()
     @subscriptions.add atom.config.observe 'linter-javac.classpath',
       (newValue) =>
         @classpath = newValue.trim()
