@@ -7,13 +7,26 @@ cpConfigFileName = '.classpath'
 
 module.exports =
   config:
-    javaExecutablePath:
+    javacExecutablePath:
       type: 'string'
-      title: 'Path to the javac executable'
+      description: 'Path to the javac executable. This setting will be used to
+      call the java-compiler. The entered value should be immediately callable
+      on commandline. Example: `C:\\Program Files\\Java\\jdk1.6.0_16\\bin\\javac.exe`.
+      Keep in mind that placeholders like `~` do **not** work. If your
+      [path-variable](https://en.wikipedia.org/wiki/PATH_\(variable\))
+      is set properly it should not be necessary to change the default.'
       default: 'javac'
-    classpath:
+    additionalClasspaths:
       type: 'string'
-      title: "Extra classpath for javac"
+      description: 'Additional classpaths to be used (for the `-cp`-option)
+      when calling javac, separate multiple paths using the right
+      path-delimiter for your os (`:`/`;`).
+      Be aware that existing classpath-definitions from
+      the environment variable "CLASSPATH" will be merged into the argument,
+      as well as the content of your optional
+      [`.classpath`-files](https://atom.io/packages/linter-javac).
+      Example: `/path1:/path2` will become `javac -cp :/path1:/path2`.
+      Keep in mind that placeholders like `~` do **not** work.'
       default: ''
     additionalJavacOptions:
       type: 'string'
@@ -22,16 +35,16 @@ module.exports =
       the javac-command and the sourcefiles. Example: `-d /root/class-cache`
       will become `javac -Xlint:all -d /root/class-cache .../Test.java`
       take a look to the  [javac-docs](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html)
-      for further information on valid options. Keep in mind that placeholder
+      for further information on valid options. Keep in mind that placeholders
       like `~` do **not** work.'
 
   activate: ->
     require('atom-package-deps').install()
     @subscriptions = new CompositeDisposable
-    @subscriptions.add atom.config.observe 'linter-javac.javaExecutablePath',
+    @subscriptions.add atom.config.observe 'linter-javac.javacExecutablePath',
       (newValue) =>
         @javaExecutablePath = newValue.trim()
-    @subscriptions.add atom.config.observe 'linter-javac.classpath',
+    @subscriptions.add atom.config.observe 'linter-javac.additionalClasspaths',
       (newValue) =>
         @classpath = newValue.trim()
     @subscriptions.add atom.config.observe 'linter-javac.additionalJavacOptions',
