@@ -79,6 +79,11 @@ module.exports =
           # Arguments to javac
           args = ['-Xlint:all']
           args = args.concat(['-cp', cp]) if cp
+
+          # add additional options to the args-array
+          if @additionalOptions.length > 0
+            args = args.concat @additionalOptions
+
           args.push.apply(args, files)
 
           # Execute javac
