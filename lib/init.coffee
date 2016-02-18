@@ -78,7 +78,7 @@ module.exports =
         .then (files) =>
           # Arguments to javac
           args = ['-Xlint:all']
-          args = args.concat(['-cp', cp]) if cp?
+          args = args.concat(['-cp', cp]) if cp
           args.push.apply(args, files)
 
           # Execute javac
