@@ -54,7 +54,7 @@ module.exports =
       wd = path.dirname filePath
       searchDir = @getProjectRootDir()
       # Classpath
-      cp = null
+      cp = ''
 
       # Find project config file if it exists.
       cpConfig = @findClasspathConfig(wd)
