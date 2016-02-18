@@ -34,6 +34,13 @@ module.exports =
     @subscriptions.add atom.config.observe 'linter-javac.classpath',
       (newValue) =>
         @classpath = newValue.trim()
+    @subscriptions.add atom.config.observe 'linter-javac.additionalJavacOptions',
+      (newValue) =>
+        trimmedValue = newValue.trim()
+        if trimmedValue
+          @additionalOptions = trimmedValue.split(/\s+/)
+        else
+          @additionalOptions = []
 
   deactivate: ->
     @subscriptions.dispose()
