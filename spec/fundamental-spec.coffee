@@ -17,6 +17,9 @@ describe 'linter-javac', ->
       # inject javaExecutablePath
       linterJavac.javaExecutablePath = 'javac'
 
+      # inject additionalOptions
+      linterJavac.additionalOptions = []
+
       # instantiate linter-worker
       @linter = linterJavac.provideLinter()
 
@@ -28,7 +31,7 @@ describe 'linter-javac', ->
       beforeEach ->
         # set proper texteditor-path to the faulty fixture
         @texteditor = _helpers.texteditorFactory(
-          _path.join(__dirname, 'fixtures', 'broken-world.java')
+          _path.join(__dirname, 'fixtures', 'BrokenWorld.java')
         )
 
       it 'returns at least 8 messages in the linter-message-object', ->
@@ -43,7 +46,7 @@ describe 'linter-javac', ->
       beforeEach ->
         # set a proper texteditor-path to the working fixture
         @texteditor = _helpers.texteditorFactory(
-          _path.join(__dirname, 'fixtures', 'hello-world.java')
+          _path.join(__dirname, 'fixtures', 'HelloWorld.java')
         )
 
       it 'returns an empty linter-message-object', ->
@@ -56,7 +59,7 @@ describe 'linter-javac', ->
       beforeEach ->
         # set a proper texteditor-path to the empty fixture
         @texteditor = _helpers.texteditorFactory(
-          _path.join(__dirname, 'fixtures', 'empty-world.java')
+          _path.join(__dirname, 'fixtures', 'EmptyWorld.java')
         )
 
       it 'returns an empty linter-message-object', ->
