@@ -1,4 +1,5 @@
 {Directory, CompositeDisposable} = require 'atom'
+_os = require 'os'
 path = require 'path'
 helpers = require 'atom-linter'
 voucher = require 'voucher'
@@ -103,6 +104,37 @@ module.exports =
             args = args.concat @additionalOptions
 
           args.push.apply(args, files)
+
+
+
+
+          # TODO: remove this quick fix
+          # count the size of expected execution-command
+          # see issue #58 for further details
+          cliLimit = if _os.platform() == 'win32' then 7900 else 130000
+          expectedCmdSize = @javaExecutablePath.length
+          sliceIndex = 0
+          for arg in args
+            expectedCmdSize++ # add prepending space
+            if (typeof arg) == 'string'
+              expectedCmdSize += arg.length
+            else
+              expectedCmdSize += arg.toString().length
+            if expectedCmdSize < cliLimit
+              sliceIndex++
+
+          if sliceIndex < (args.length - 1)
+            # coffeelint: disable=max_line_length
+            console.warn """
+linter-javac: The lint-command is presumed to break the limit of #{cliLimit} characters on the #{_os.platform()}-platform.
+Dropping #{args.length - sliceIndex} source files, as a result javac may not resolve all dependencies.
+"""
+            # coffeelint: enable=max_line_length
+            args.push(filePath)
+            args = args.slice(0, sliceIndex)
+
+
+
 
           # Execute javac
           helpers.exec(@javaExecutablePath, args, {stream: 'stderr', cwd: wd})
