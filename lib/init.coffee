@@ -6,6 +6,7 @@ fs = require 'fs'
 cpConfigFileName = '.classpath'
 
 module.exports =
+  # coffeelint: disable=max_line_length
   config:
     javacExecutablePath:
       type: 'string'
@@ -34,9 +35,11 @@ module.exports =
       description: 'Your additional options will be inserted between
       the javac-command and the sourcefiles. Example: `-d /root/class-cache`
       will become `javac -Xlint:all -d /root/class-cache .../Test.java`
-      take a look to the  [javac-docs](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html)
+      take a look to the
+      [javac-docs](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html)
       for further information on valid options. Keep in mind that placeholders
       like `~` do **not** work.'
+
 
   activate: ->
     require('atom-package-deps').install()
@@ -54,6 +57,8 @@ module.exports =
           @additionalOptions = trimmedValue.split(/\s+/)
         else
           @additionalOptions = []
+
+  # coffeelint: enable=max_line_length
 
   deactivate: ->
     @subscriptions.dispose()
