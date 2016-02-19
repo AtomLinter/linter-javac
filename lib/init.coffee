@@ -1,4 +1,5 @@
 {Directory, CompositeDisposable} = require 'atom'
+_os = require 'os'
 path = require 'path'
 helpers = require 'atom-linter'
 voucher = require 'voucher'
@@ -6,6 +7,7 @@ fs = require 'fs'
 cpConfigFileName = '.classpath'
 
 module.exports =
+  # coffeelint: disable=max_line_length
   config:
     javacExecutablePath:
       type: 'string'
@@ -34,9 +36,11 @@ module.exports =
       description: 'Your additional options will be inserted between
       the javac-command and the sourcefiles. Example: `-d /root/class-cache`
       will become `javac -Xlint:all -d /root/class-cache .../Test.java`
-      take a look to the  [javac-docs](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html)
+      take a look to the
+      [javac-docs](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html)
       for further information on valid options. Keep in mind that placeholders
       like `~` do **not** work.'
+
 
   activate: ->
     require('atom-package-deps').install()
@@ -54,6 +58,8 @@ module.exports =
           @additionalOptions = trimmedValue.split(/\s+/)
         else
           @additionalOptions = []
+
+  # coffeelint: enable=max_line_length
 
   deactivate: ->
     @subscriptions.dispose()
@@ -98,6 +104,37 @@ module.exports =
             args = args.concat @additionalOptions
 
           args.push.apply(args, files)
+
+
+
+
+          # TODO: remove this quick fix
+          # count the size of expected execution-command
+          # see issue #58 for further details
+          cliLimit = if _os.platform() == 'win32' then 7900 else 130000
+          expectedCmdSize = @javaExecutablePath.length
+          sliceIndex = 0
+          for arg in args
+            expectedCmdSize++ # add prepending space
+            if (typeof arg) == 'string'
+              expectedCmdSize += arg.length
+            else
+              expectedCmdSize += arg.toString().length
+            if expectedCmdSize < cliLimit
+              sliceIndex++
+
+          if sliceIndex < (args.length - 1)
+            # coffeelint: disable=max_line_length
+            console.warn """
+linter-javac: The lint-command is presumed to break the limit of #{cliLimit} characters on the #{_os.platform()}-platform.
+Dropping #{args.length - sliceIndex} source files, as a result javac may not resolve all dependencies.
+"""
+            # coffeelint: enable=max_line_length
+            args.push(filePath)
+            args = args.slice(0, sliceIndex)
+
+
+
 
           # Execute javac
           helpers.exec(@javaExecutablePath, args, {stream: 'stderr', cwd: wd})
