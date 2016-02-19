@@ -12,7 +12,7 @@ Or Atom ➔ Preferences... ➔ Packages ➔ Search for "linter-javac".
 
 ## Settings
 
-You can configure linter-javac by using the GUI (recommended - the GUI offers a description and validation of the settings) or by editing your `~/.atom/config.cson` (or Atom ➔ Open Your Config):
+You can configure linter-javac by using the GUI (recommended - the GUI offers a description and valid defaults) or by editing your `~/.atom/config.cson` (or Atom ➔ Open Your Config):
 
 ```coffeescript
 "linter-javac":
