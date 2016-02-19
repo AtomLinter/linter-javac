@@ -1,4 +1,5 @@
 {Directory, CompositeDisposable} = require 'atom'
+_os = require 'os'
 path = require 'path'
 helpers = require 'atom-linter'
 voucher = require 'voucher'
@@ -6,25 +7,59 @@ fs = require 'fs'
 cpConfigFileName = '.classpath'
 
 module.exports =
+  # coffeelint: disable=max_line_length
   config:
-    javaExecutablePath:
+    javacExecutablePath:
       type: 'string'
-      title: 'Path to the javac executable'
+      description: 'Path to the javac executable. This setting will be used to
+      call the java-compiler. The entered value should be immediately callable
+      on commandline. Example: `C:\\Program Files\\Java\\jdk1.6.0_16\\bin\\javac.exe`.
+      Keep in mind that placeholders like `~` do **not** work. If your
+      [path-variable](https://en.wikipedia.org/wiki/PATH_\(variable\))
+      is set properly it should not be necessary to change the default.'
       default: 'javac'
-    classpath:
+    additionalClasspaths:
       type: 'string'
-      title: "Extra classpath for javac"
+      description: 'Additional classpaths to be used (for the `-cp`-option)
+      when calling javac, separate multiple paths using the right
+      path-delimiter for your os (`:`/`;`).
+      Be aware that existing classpath-definitions from
+      the environment variable "CLASSPATH" will be merged into the argument,
+      as well as the content of your optional
+      [`.classpath`-files](https://atom.io/packages/linter-javac).
+      Example: `/path1:/path2` will become `javac -cp :/path1:/path2`.
+      Keep in mind that placeholders like `~` do **not** work.'
       default: ''
+    additionalJavacOptions:
+      type: 'string'
+      default: ''
+      description: 'Your additional options will be inserted between
+      the javac-command and the sourcefiles. Example: `-d /root/class-cache`
+      will become `javac -Xlint:all -d /root/class-cache .../Test.java`
+      take a look to the
+      [javac-docs](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html)
+      for further information on valid options. Keep in mind that placeholders
+      like `~` do **not** work.'
+
 
   activate: ->
     require('atom-package-deps').install()
     @subscriptions = new CompositeDisposable
-    @subscriptions.add atom.config.observe 'linter-javac.javaExecutablePath',
+    @subscriptions.add atom.config.observe 'linter-javac.javacExecutablePath',
       (newValue) =>
-        @javaExecutablePath = newValue
-    @subscriptions.add atom.config.observe 'linter-javac.classpath',
+        @javaExecutablePath = newValue.trim()
+    @subscriptions.add atom.config.observe 'linter-javac.additionalClasspaths',
       (newValue) =>
         @classpath = newValue.trim()
+    @subscriptions.add atom.config.observe 'linter-javac.additionalJavacOptions',
+      (newValue) =>
+        trimmedValue = newValue.trim()
+        if trimmedValue
+          @additionalOptions = trimmedValue.split(/\s+/)
+        else
+          @additionalOptions = []
+
+  # coffeelint: enable=max_line_length
 
   deactivate: ->
     @subscriptions.dispose()
@@ -38,7 +73,7 @@ module.exports =
       wd = path.dirname filePath
       searchDir = @getProjectRootDir()
       # Classpath
-      cp = null
+      cp = ''
 
       # Find project config file if it exists.
       cpConfig = @findClasspathConfig(wd)
@@ -62,8 +97,44 @@ module.exports =
         .then (files) =>
           # Arguments to javac
           args = ['-Xlint:all']
-          args = args.concat(['-cp', cp]) if cp?
+          args = args.concat(['-cp', cp]) if cp
+
+          # add additional options to the args-array
+          if @additionalOptions.length > 0
+            args = args.concat @additionalOptions
+
           args.push.apply(args, files)
+
+
+
+
+          # TODO: remove this quick fix
+          # count the size of expected execution-command
+          # see issue #58 for further details
+          cliLimit = if _os.platform() == 'win32' then 7900 else 130000
+          expectedCmdSize = @javaExecutablePath.length
+          sliceIndex = 0
+          for arg in args
+            expectedCmdSize++ # add prepending space
+            if (typeof arg) == 'string'
+              expectedCmdSize += arg.length
+            else
+              expectedCmdSize += arg.toString().length
+            if expectedCmdSize < cliLimit
+              sliceIndex++
+
+          if sliceIndex < (args.length - 1)
+            # coffeelint: disable=max_line_length
+            console.warn """
+linter-javac: The lint-command is presumed to break the limit of #{cliLimit} characters on the #{_os.platform()}-platform.
+Dropping #{args.length - sliceIndex} source files, as a result javac may not resolve all dependencies.
+"""
+            # coffeelint: enable=max_line_length
+            args.push(filePath)
+            args = args.slice(0, sliceIndex)
+
+
+
 
           # Execute javac
           helpers.exec(@javaExecutablePath, args, {stream: 'stderr', cwd: wd})
