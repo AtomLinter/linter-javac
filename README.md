@@ -1,6 +1,6 @@
 # linter-javac
 
-This package will lint your opened `.java`-files on save, using [javac](javac-docs).
+This package will lint your opened `.java`-files on save, using [javac][javac-docs].
 
 
 ## Installation
@@ -22,9 +22,9 @@ You can configure linter-javac by using the GUI (recommended - the GUI offers a 
   additionalClasspaths: "C:\Users\JohnDoe"
   additionalJavacOptions: "-verbose -d C:\java-class-cache"
 ```
-Example-Configuration, see our [Wiki](wiki) or the config-GUI for further information.
+Example-Configuration, see our [Wiki][wiki] or the config-GUI for further information.
 
-> To configure linter-javac on a per project-base, we currently encourage you using the [project-manager package](project-manager).
+> To configure linter-javac on a per project-base, we currently encourage you using the [project-manager package][project-manager].
 
 
 ## Classpath
@@ -44,7 +44,7 @@ file, so relative paths can be considered to be relative to that file.
 
 ## Frequently Asked Questions
 
-Please take a look into our [FAQs at our wiki](faqs).
+Please take a look into our [FAQs at our wiki][faqs].
 
 
 ### Can I help?
@@ -57,6 +57,6 @@ Yes please! Give us feedback, file bugs or just help us coding - join us on http
 
 
 [javac-docs]: https://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html
-[Wiki]: https://github.com/AtomLinter/linter-javac/wiki
+[wiki]: https://github.com/AtomLinter/linter-javac/wiki
 [project-manager]: https://atom.io/packages/project-manager
 [faqs]: https://github.com/AtomLinter/linter-javac/wiki#frequently-asked-questions
