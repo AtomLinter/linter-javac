@@ -4,7 +4,6 @@ path = require 'path'
 helpers = require 'atom-linter'
 voucher = require 'voucher'
 fs = require 'fs'
-cpConfigFileName = '.classpath'
 
 module.exports =
   # coffeelint: disable=max_line_length
@@ -40,6 +39,18 @@ module.exports =
       [javac-docs](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html)
       for further information on valid options. Keep in mind that placeholders
       like `~` do **not** work.'
+    classpathFilename:
+      type: 'string'
+      default: '.classpath'
+      description: 'You can change the default .classpath filename. This is a
+      useful option if You e.g. bump into conflicts with Eclipse users.'
+    javacArgsFilename:
+      type: 'string'
+      default: ''
+      description: 'Optionally you can define filename for a
+      [javac argsfile](https://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html#BHCCFGCD)
+      that is located alongside with the .classpath file in the same directory.
+      Contents of the argfile are passed to javac as arguments.'
 
 
   activate: ->
@@ -58,6 +69,12 @@ module.exports =
           @additionalOptions = trimmedValue.split(/\s+/)
         else
           @additionalOptions = []
+    @subscriptions.add atom.config.observe 'linter-javac.classpathFilename',
+      (newValue) =>
+        @classpathFilename = newValue.trim()
+    @subscriptions.add atom.config.observe 'linter-javac.javacArgsFilename',
+      (newValue) =>
+        @javacArgsFilename = newValue.trim()
 
   # coffeelint: enable=max_line_length
 
@@ -102,6 +119,9 @@ module.exports =
           # add additional options to the args-array
           if @additionalOptions.length > 0
             args = args.concat @additionalOptions
+
+          # add javac argsfile if filename has been configured
+          args.push('@' + @javacArgsFilename) if @javacArgsFilename
 
           args.push.apply(args, files)
 
@@ -211,7 +231,7 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
     # project base directory.
     while atom.project.contains(d) or (d in atom.project.getPaths())
       try
-        file = path.join d, cpConfigFileName
+        file = path.join d, @classpathFilename
         result =
           cfgCp: fs.readFileSync(file, { encoding: 'utf-8' })
           cfgDir: d
