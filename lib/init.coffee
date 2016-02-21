@@ -1,4 +1,5 @@
 {Directory, CompositeDisposable} = require 'atom'
+# require statements were moved into the provideLinter-function
 _os = null
 path = null
 helpers = null
@@ -73,6 +74,7 @@ module.exports =
     return @state
 
   provideLinter: ->
+    # doing requirement here is lowering load-time
     if _os == null
       _os = require 'os'
       path = require 'path'
