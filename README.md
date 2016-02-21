@@ -1,42 +1,69 @@
 # linter-javac
 
-This package will lint your `.java` opened files in Atom through [javac](http://docs.oracle.com/javase/7/docs/technotes/tools/windows/javac.html).
+This package will lint your opened `.java`-files on save, using [javac][javac-docs].
 
-This package will ensure all dependencies are installed on activation.
 
 ## Installation
 
-*   Install [java](http://www.java.com/).
-*   `$ apm install linter-javac`
+Ensure a working JDK is available in your environment (see FAQ) then enter the following on your command line:
+
+    apm install linter-javac
+
+Or Atom ➔ Preferences... ➔ Packages ➔ Search for "linter-javac".
+
 
 ## Settings
 
-You can configure linter-javac by editing `~/.atom/config.cson` (choose Open
-Your Config in Atom menu):
+You can configure linter-javac by using the GUI (recommended - the GUI offers a description and valid defaults) or by editing your `~/.atom/config.cson` (or Atom ➔ Open Your Config):
 
 ```coffeescript
+
 "linter-javac":
-  # The path to javac.   The default (javac) should work as long as you have it
-  # in your system PATH.
   javaExecutablePath: "javac"
-  # Extra classpath.  This will be appended to the classpath when executing javac.
-    classpath: ""
+  additionalClasspaths: "C:\Users\JohnDoe"
+  additionalJavacOptions: "-verbose -d C:\java-class-cache"
+  classpathFilename: ".acme-inc-classpaths"
+  javacArgsFilename: "acme-inc-argfile"
+
 ```
+Example-Configuration, see our [Wiki][wiki] or the config-GUI for further information.
+
+> To configure linter-javac on a per project-base, we currently encourage you using the [project-manager package][project-manager].
+
 
 ## Classpath
 
-It is strongly recommended that you configure your classpath via a `.classpath`
-file within your project (typically at the root). Simply create a file
-named `.classpath` somewhere within your project (ideally at the root of
-the project). The linter will search for this file by starting at the directory
-of the file being compiled and then searching all parent directories within the
-project. If you have more than one of these configuration files, it will use
-the one that is "closest" to the file being compiled. Within `.classpath` place
-only the classpath to be used for the project (nothing else). For example:
+> The currently implemented `.classpath`-file format conflicts with the Eclipse-based file format. Therefore this implementation will be replaced in the far future.  
+We are aware that configuring classpath-information is the most important (and annoying) issue in linting source-files right - we are working hard to make our planned improvement imperceptible for you. We will keep you informed.
+
+~~It is strongly recommended that you~~ You may configure your classpath via a so called classpath-file which by default is named `.classpath` (you can change the filename in the Atom-preferences).
+
+The linter starts searching for your classpath-file in the directory where the source file resides which get's linted. If there is no matching classpath-file the search is continued wandering the file-tree up, until a classpath-file is found or the project-folder would be left.
+
+You may place any directories classpath-file, delimited by your platform-specific path-dlimiter (`:`/`;`):
 
 ```java
 .:./lib/junit.jar
 ```
 
-This linter will execute `javac` within the directory of the `.classpath`
-file, so relative paths can be considered to be relative to that file.
+A linter configured by the above example will execute `javac` in the directory where the classpath-file resides, so that relative paths will be resolved in dependency to the classpath-file-position.
+
+
+## Frequently Asked Questions
+
+Please take a look into our [FAQs at our wiki][faqs].
+
+
+### Can I help?
+
+Yes please! Give us feedback, file bugs or just help us coding - join us on https://github.com/AtomLinter/linter-javac/issues and leave a note!
+
+
+:gift_heart:
+
+
+
+[javac-docs]: https://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html
+[wiki]: https://github.com/AtomLinter/linter-javac/wiki
+[project-manager]: https://atom.io/packages/project-manager
+[faqs]: https://github.com/AtomLinter/linter-javac/wiki#frequently-asked-questions
