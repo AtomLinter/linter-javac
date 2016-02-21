@@ -42,8 +42,11 @@ module.exports =
       like `~` do **not** work.'
 
 
-  activate: ->
-    require('atom-package-deps').install()
+  activate: (state) ->
+    # state-object as preparation for user-notifications
+    @state = if state then state or {}
+    @state = {}
+
     require('atom-package-deps').install('linter-javac')
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.config.observe 'linter-javac.javacExecutablePath',
@@ -64,6 +67,9 @@ module.exports =
 
   deactivate: ->
     @subscriptions.dispose()
+
+  serialize: ->
+    return @state
 
   provideLinter: ->
     grammarScopes: ['source.java']
