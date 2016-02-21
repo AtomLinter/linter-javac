@@ -1,9 +1,10 @@
 {Directory, CompositeDisposable} = require 'atom'
-_os = require 'os'
-path = require 'path'
-helpers = require 'atom-linter'
-voucher = require 'voucher'
-fs = require 'fs'
+_os = null
+path = null
+helpers = null
+voucher = null
+fs = null
+
 cpConfigFileName = '.classpath'
 
 module.exports =
@@ -72,6 +73,13 @@ module.exports =
     return @state
 
   provideLinter: ->
+    if _os == null
+      _os = require 'os'
+      path = require 'path'
+      helpers = require 'atom-linter'
+      voucher = require 'voucher'
+      fs = require 'fs'
+
     grammarScopes: ['source.java']
     scope: 'project'
     lintOnFly: false       # Only lint on save
