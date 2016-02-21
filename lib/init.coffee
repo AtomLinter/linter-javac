@@ -44,6 +44,7 @@ module.exports =
 
   activate: ->
     require('atom-package-deps').install()
+    require('atom-package-deps').install('linter-javac')
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.config.observe 'linter-javac.javacExecutablePath',
       (newValue) =>
