@@ -1,9 +1,13 @@
 {Directory, CompositeDisposable} = require 'atom'
-_os = require 'os'
-path = require 'path'
-helpers = require 'atom-linter'
-voucher = require 'voucher'
-fs = require 'fs'
+# require statements were moved into the provideLinter-function
+_os = null
+path = null
+helpers = null
+voucher = null
+fs = null
+
+cpConfigFileName = '.classpath'
+
 
 module.exports =
   # coffeelint: disable=max_line_length
@@ -53,8 +57,12 @@ module.exports =
       Contents of the argfile are passed to javac as arguments.'
 
 
-  activate: ->
-    require('atom-package-deps').install()
+  activate: (state) ->
+    # state-object as preparation for user-notifications
+    @state = if state then state or {}
+    @state = {}
+
+    require('atom-package-deps').install('linter-javac')
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.config.observe 'linter-javac.javacExecutablePath',
       (newValue) =>
@@ -81,7 +89,18 @@ module.exports =
   deactivate: ->
     @subscriptions.dispose()
 
+  serialize: ->
+    return @state
+
   provideLinter: ->
+    # doing requirement here is lowering load-time
+    if _os == null
+      _os = require 'os'
+      path = require 'path'
+      helpers = require 'atom-linter'
+      voucher = require 'voucher'
+      fs = require 'fs'
+
     grammarScopes: ['source.java']
     scope: 'project'
     lintOnFly: false       # Only lint on save
