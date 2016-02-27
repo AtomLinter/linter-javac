@@ -203,9 +203,8 @@ linter-javac: The lint-command is presumed to break the limit of #{cliLimit} cha
 Dropping #{args.length - sliceIndex} source files, as a result javac may not resolve all dependencies.
 """
             # coffeelint: enable=max_line_length
-            args.push(filePath)
-            args = args.slice(0, sliceIndex)
-
+            args = args.slice(0, sliceIndex) # cut args down
+            args.push(filePath) # ensure actual file is part
 
 
           if @debugMode
