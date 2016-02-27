@@ -55,12 +55,16 @@ module.exports =
       [javac argsfile](https://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html#BHCCFGCD)
       that is located alongside with the .classpath file in the same directory.
       Contents of the argfile are passed to javac as arguments.'
+    debugMode:
+      type: 'boolean'
+      default: 'false'
+      description: 'Enables the debug mode for linter-javac. This plugin starts writing useful information fur debugging purposes into the developer-console (alt+cmd+i).
+      Enable this feature if the linter is not working as expected. You are welcome to help the plugin-maintainers improving this linter by filing the log-messages in an issue. It is recommended to use this option only for troubleshooting, due to performance issues.'
 
 
   activate: (state) ->
     # state-object as preparation for user-notifications
     @state = if state then state or {}
-    @state = {}
 
     require('atom-package-deps').install('linter-javac')
     @subscriptions = new CompositeDisposable
@@ -83,7 +87,9 @@ module.exports =
     @subscriptions.add atom.config.observe 'linter-javac.javacArgsFilename',
       (newValue) =>
         @javacArgsFilename = newValue.trim()
-
+    @subscriptions.add atom.config.observe 'linter-javac.debugMode',
+      (newValue) =>
+        @debugMode = (newValue == true)
   # coffeelint: enable=max_line_length
 
   deactivate: ->
@@ -100,6 +106,11 @@ module.exports =
       helpers = require 'atom-linter'
       voucher = require 'voucher'
       fs = require 'fs'
+      if @debugMode
+        @_log 'requiring modules finished.'
+
+    if @debugMode
+      @_log 'providing linter, examining javac-callability.'
 
     grammarScopes: ['source.java']
     scope: 'project'
@@ -111,6 +122,9 @@ module.exports =
       # Classpath
       cp = ''
 
+      if @debugMode
+        @_log 'starting linting.'
+      
       # Find project config file if it exists.
       cpConfig = @findClasspathConfig(wd)
       if cpConfig?
@@ -127,6 +141,11 @@ module.exports =
       # Add environment variable if it exists
       cp += path.delimiter + process.env.CLASSPATH if process.env.CLASSPATH
 
+      if @debugMode
+        @_log 'start searching java-files with "',
+          searchDir,
+          '" as search-directory.'
+
       atom.project.repositoryForDirectory(new Directory(searchDir))
         .then (repo) =>
           @getFilesEndingWith searchDir, '.java', repo?.isPathIgnored.bind(repo)
@@ -138,14 +157,29 @@ module.exports =
           # add additional options to the args-array
           if @additionalOptions.length > 0
             args = args.concat @additionalOptions
+            if @debugMode
+              @_log 'adding ',
+                @additionalOptions.length,
+                ' additional javac-options.'
+
+          if @debugMode
+            @_log 'collected the following arguments: ', args.join(' ')
 
           # add javac argsfile if filename has been configured
-          args.push('@' + @javacArgsFilename) if @javacArgsFilename
+          if @javacArgsFilename
+            args.push('@' + @javacArgsFilename)
+            if @debugMode
+              @_log 'adding ', @javacArgsFilename, ' as argsfile.'
 
           args.push.apply(args, files)
-
-
-
+          if @debugMode
+            @_log 'adding ',
+              files.length,
+              ' files to the javac-arguments (from "',
+              files[0],
+              '" to "',
+              files[files.length - 1]
+              '").'
 
           # TODO: remove this quick fix
           # count the size of expected execution-command
@@ -174,11 +208,22 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
 
 
 
+          if @debugMode
+            @_log 'calling javac with ',
+              args.length,
+              ' arguments by invoking "', @javaExecutablePath,
+              '". The approximated command length is ',
+              args.join(' ').length,
+              ' characters long, the last argument is: ',
+              args[args.length - 1]
 
           # Execute javac
           helpers.exec(@javaExecutablePath, args, {stream: 'stderr', cwd: wd})
             .then (val) =>
+              if @debugMode
+                @_log 'parsing:\n', val
               @parse(val, textEditor)
+
 
   parse: (javacOutput, textEditor) ->
     # Regex to match the error/warning line
@@ -202,6 +247,8 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
         if messages.length > 0
           messages[messages.length - 1].range[0][1] = column
           messages[messages.length - 1].range[1][1] = column + 1
+    if @debugMode
+      @_log 'returning ', messages.length, ' linter-messages.'
     return messages
 
   getProjectRootDir: ->
@@ -260,3 +307,8 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
         d = path.dirname(d)
 
     return null
+
+  _log: (msgs...) ->
+    if (msgs.length > 0)
+      javacPrefix = 'linter-javac: '
+      console.log javacPrefix, msgs.join('')
