@@ -6,7 +6,7 @@
   "repository": "https://github.com/AtomLinter/linter-javac",
   "license": "MIT",
   "engines": {
-    "atom": ">1.0.0"
+    "atom": ">1.4.0"
   },
   "dependencies": {
     "atom-linter": "^4.5.0",
@@ -26,24 +26,18 @@
   "configSchema": {
     "javacExecutablePath": {
       "type": "string",
-      "description": "Path to the javac executable. This setting will be used to call the java-compiler. The entered value should be immediately callable on commandline. Example: `C:\\Program Files\\Java\\jdk1.6.0_16\\bin\\javac.exe`.
-      Keep in mind that placeholders like `~` do **not** work.
-      If your [path-variable](https://en.wikipedia.org/wiki/PATH_(variable)) is set properly it should not be necessary to change the default.",
-      "default": "javac"
+      "default": "javac",
+      "description": "Path to the javac executable. This setting will be used to call the java-compiler. The entered value should be immediately callable on commandline. Example: `C:\\Program Files\\Java\\jdk1.6.0_16\\bin\\javac.exe`. Keep in mind that placeholders like `~` do **not** work. If your [path-variable](https://en.wikipedia.org/wiki/PATH_(variable)) is set properly it should not be necessary to change the default."
     },
     "additionalClasspaths": {
       "type": "string",
-      "description": "Additional classpaths to be used (for the `-cp`-option) when calling javac, separate multiple paths using the right path-delimiter for your os (`:`/`;`).
-      Be aware that existing classpath-definitions from the environment variable \"CLASSPATH\" will be merged into the argument, as well as the content of your optional [`.classpath`-files](https://atom.io/packages/linter-javac).
-      Example: `/path1:/path2` will become `javac -cp :/path1:/path2`.
-      Keep in mind that placeholders like `~` do **not** work.",
-      "default": ""
+      "default": "",
+      "description": "Additional classpaths to be used (for the `-cp`-option) when calling javac, separate multiple paths using the right path-delimiter for your os (`:`/`;`). Be aware that existing classpath-definitions from the environment variable \"CLASSPATH\" will be merged into the argument, as well as the content of your optional [`.classpath`-files](https://atom.io/packages/linter-javac). Example: `/path1:/path2` will become `javac -cp :/path1:/path2`. Keep in mind that placeholders like `~` do **not** work."
     },
     "additionalJavacOptions": {
       "type": "string",
       "default": "",
-      "description": "Your additional options will be inserted between the javac-command and the sourcefiles. Example: `-d /root/class-cache` will become `javac -Xlint:all -d /root/class-cache .../Test.java` take a look to the [javac-docs](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html) for further information on valid options.
-      Keep in mind that placeholders like `~` do **not** work."
+      "description": "Your additional options will be inserted between the javac-command and the sourcefiles. Example: `-d /root/class-cache` will become `javac -Xlint:all -d /root/class-cache .../Test.java` take a look to the [javac-docs](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html) for further information on valid options. Keep in mind that placeholders like `~` do **not** work."
     },
     "classpathFilename": {
       "type": "string",
@@ -58,8 +52,7 @@
     "verboseLogging": {
       "type": "boolean",
       "default": false,
-      "description": "If enabled linter-javac will log its internal states to the console. This option is intendet for debugging purposes **only** - enable this **only temporarily**, if the linter is not working as expected. You can access the output from the dev-console (alt+cmd+i), you may file the log-messages to a proper issue in order to help us improving this package.
-      Do not forget to disable this option afterwards - since this may lead to performance issues.
+      "description": "If enabled linter-javac will log its internal states to the console. This option is intended for debugging purposes **only** - enable this **only temporarily**, if the linter is not working as expected. You can access the output from the dev-console (alt+cmd+i), you may file the log-messages to a proper issue in order to help us improving this package. Do not forget to disable this option afterwards - since this may lead to performance issues."
     }
   }
 }
