@@ -49,10 +49,9 @@ You may place any directories classpath-file, delimited by your platform-specifi
 A linter configured by the above example will execute `javac` in the directory where the classpath-file resides, so that relative paths will be resolved in dependency to the classpath-file-position.
 
 
-## Frequently Asked Questions
+## Frequently Asked Questions & Troubleshooting
 
 Please take a look into our [FAQs at our wiki][faqs].
-
 
 ### Can I help?
 
