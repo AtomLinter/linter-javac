@@ -10,87 +10,46 @@ cpConfigFileName = '.classpath'
 
 
 module.exports =
-  # coffeelint: disable=max_line_length
-  config:
-    javacExecutablePath:
-      type: 'string'
-      description: 'Path to the javac executable. This setting will be used to
-      call the java-compiler. The entered value should be immediately callable
-      on commandline. Example: `C:\\Program Files\\Java\\jdk1.6.0_16\\bin\\javac.exe`.
-      Keep in mind that placeholders like `~` do **not** work. If your
-      [path-variable](https://en.wikipedia.org/wiki/PATH_\(variable\))
-      is set properly it should not be necessary to change the default.'
-      default: 'javac'
-    additionalClasspaths:
-      type: 'string'
-      description: 'Additional classpaths to be used (for the `-cp`-option)
-      when calling javac, separate multiple paths using the right
-      path-delimiter for your os (`:`/`;`).
-      Be aware that existing classpath-definitions from
-      the environment variable "CLASSPATH" will be merged into the argument,
-      as well as the content of your optional
-      [`.classpath`-files](https://atom.io/packages/linter-javac).
-      Example: `/path1:/path2` will become `javac -cp :/path1:/path2`.
-      Keep in mind that placeholders like `~` do **not** work.'
-      default: ''
-    additionalJavacOptions:
-      type: 'string'
-      default: ''
-      description: 'Your additional options will be inserted between
-      the javac-command and the sourcefiles. Example: `-d /root/class-cache`
-      will become `javac -Xlint:all -d /root/class-cache .../Test.java`
-      take a look to the
-      [javac-docs](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html)
-      for further information on valid options. Keep in mind that placeholders
-      like `~` do **not** work.'
-    classpathFilename:
-      type: 'string'
-      default: '.classpath'
-      description: 'You can change the default .classpath filename. This is a
-      useful option if You e.g. bump into conflicts with Eclipse users.'
-    javacArgsFilename:
-      type: 'string'
-      default: ''
-      description: 'Optionally you can define filename for a
-      [javac argsfile](https://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html#BHCCFGCD)
-      that is located alongside with the .classpath file in the same directory.
-      Contents of the argfile are passed to javac as arguments.'
-    debugMode:
-      type: 'boolean'
-      default: 'false'
-      description: 'Enables the debug mode for linter-javac. This plugin starts writing useful information fur debugging purposes into the developer-console (alt+cmd+i).
-      Enable this feature if the linter is not working as expected. You are welcome to help the plugin-maintainers improving this linter by filing the log-messages in an issue. It is recommended to use this option only for troubleshooting, due to performance issues.'
-
-
   activate: (state) ->
     # state-object as preparation for user-notifications
     @state = if state then state or {}
 
     require('atom-package-deps').install('linter-javac')
     @subscriptions = new CompositeDisposable
-    @subscriptions.add atom.config.observe 'linter-javac.javacExecutablePath',
-      (newValue) =>
-        @javaExecutablePath = newValue.trim()
-    @subscriptions.add atom.config.observe 'linter-javac.additionalClasspaths',
-      (newValue) =>
-        @classpath = newValue.trim()
-    @subscriptions.add atom.config.observe 'linter-javac.additionalJavacOptions',
-      (newValue) =>
-        trimmedValue = newValue.trim()
-        if trimmedValue
-          @additionalOptions = trimmedValue.split(/\s+/)
-        else
-          @additionalOptions = []
-    @subscriptions.add atom.config.observe 'linter-javac.classpathFilename',
-      (newValue) =>
-        @classpathFilename = newValue.trim()
-    @subscriptions.add atom.config.observe 'linter-javac.javacArgsFilename',
-      (newValue) =>
-        @javacArgsFilename = newValue.trim()
-    @subscriptions.add atom.config.observe 'linter-javac.debugMode',
-      (newValue) =>
-        @debugMode = (newValue == true)
-  # coffeelint: enable=max_line_length
+    @subscriptions.add(
+      atom.config.observe 'linter-javac.javacExecutablePath',
+        (newValue) =>
+          @javaExecutablePath = newValue.trim()
+    )
+    @subscriptions.add(
+      atom.config.observe 'linter-javac.additionalClasspaths',
+        (newValue) =>
+          @classpath = newValue.trim()
+    )
+    @subscriptions.add(
+      atom.config.observe 'linter-javac.additionalJavacOptions',
+        (newValue) =>
+          trimmedValue = newValue.trim()
+          if trimmedValue
+            @additionalOptions = trimmedValue.split(/\s+/)
+          else
+            @additionalOptions = []
+      )
+    @subscriptions.add(
+      atom.config.observe 'linter-javac.classpathFilename',
+        (newValue) =>
+          @classpathFilename = newValue.trim()
+    )
+    @subscriptions.add(
+      atom.config.observe 'linter-javac.javacArgsFilename',
+        (newValue) =>
+          @javacArgsFilename = newValue.trim()
+    )
+    @subscriptions.add(
+      atom.config.observe 'linter-javac.verboseLogging',
+        (newValue) =>
+          @verboseLogging = (newValue == true)
+    )
 
   deactivate: ->
     @subscriptions.dispose()
@@ -106,10 +65,10 @@ module.exports =
       helpers = require 'atom-linter'
       voucher = require 'voucher'
       fs = require 'fs'
-      if @debugMode
+      if @verboseLogging
         @_log 'requiring modules finished.'
 
-    if @debugMode
+    if @verboseLogging
       @_log 'providing linter, examining javac-callability.'
 
     grammarScopes: ['source.java']
@@ -122,9 +81,9 @@ module.exports =
       # Classpath
       cp = ''
 
-      if @debugMode
+      if @verboseLogging
         @_log 'starting linting.'
-      
+
       # Find project config file if it exists.
       cpConfig = @findClasspathConfig(wd)
       if cpConfig?
@@ -141,7 +100,7 @@ module.exports =
       # Add environment variable if it exists
       cp += path.delimiter + process.env.CLASSPATH if process.env.CLASSPATH
 
-      if @debugMode
+      if @verboseLogging
         @_log 'start searching java-files with "',
           searchDir,
           '" as search-directory.'
@@ -157,22 +116,22 @@ module.exports =
           # add additional options to the args-array
           if @additionalOptions.length > 0
             args = args.concat @additionalOptions
-            if @debugMode
+            if @verboseLogging
               @_log 'adding ',
                 @additionalOptions.length,
                 ' additional javac-options.'
 
-          if @debugMode
+          if @verboseLogging
             @_log 'collected the following arguments: ', args.join(' ')
 
           # add javac argsfile if filename has been configured
           if @javacArgsFilename
             args.push('@' + @javacArgsFilename)
-            if @debugMode
+            if @verboseLogging
               @_log 'adding ', @javacArgsFilename, ' as argsfile.'
 
           args.push.apply(args, files)
-          if @debugMode
+          if @verboseLogging
             @_log 'adding ',
               files.length,
               ' files to the javac-arguments (from "',
@@ -207,7 +166,7 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
             args.push(filePath) # ensure actual file is part
 
 
-          if @debugMode
+          if @verboseLogging
             @_log 'calling javac with ',
               args.length,
               ' arguments by invoking "', @javaExecutablePath,
@@ -219,7 +178,7 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
           # Execute javac
           helpers.exec(@javaExecutablePath, args, {stream: 'stderr', cwd: wd})
             .then (val) =>
-              if @debugMode
+              if @verboseLogging
                 @_log 'parsing:\n', val
               @parse(val, textEditor)
 
@@ -246,7 +205,7 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
         if messages.length > 0
           messages[messages.length - 1].range[0][1] = column
           messages[messages.length - 1].range[1][1] = column + 1
-    if @debugMode
+    if @verboseLogging
       @_log 'returning ', messages.length, ' linter-messages.'
     return messages
 
