@@ -82,7 +82,7 @@ module.exports =
       cp = ''
 
       if @verboseLogging
-        @_log 'starting linting.'
+        @_log 'starting to lint.'
 
       # Find project config file if it exists.
       cpConfig = @findClasspathConfig(wd)
