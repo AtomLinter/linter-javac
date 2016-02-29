@@ -3,6 +3,17 @@
 This package will lint your opened `.java`-files on save, using [javac][javac-docs].
 
 
+## Latest Changes
+
+- 1.8.0 - introduced config-setting `verboseLogging` for debugging purposes; improved startup-speed.
+- 1.7.0 - improved startup-speed.
+- 1.6.0 - fixed bug causing linter-javac to resign on large projects (primarily on Windows).
+
+### Planned Milestones
+
+- 2.0.0 - complete rewrite of linter-javac (see [issue 76][iss76]).
+
+
 ## Installation
 
 Ensure a working JDK is available in your environment (see FAQ) then enter the following on your command line:
@@ -62,6 +73,7 @@ Yes please! Give us feedback, file bugs or just help us coding - join us on http
 
 
 
+[iss76]: https://github.com/AtomLinter/linter-javac/issues/76
 [javac-docs]: https://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html
 [wiki]: https://github.com/AtomLinter/linter-javac/wiki
 [project-manager]: https://atom.io/packages/project-manager
