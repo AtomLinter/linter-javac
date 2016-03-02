@@ -27,7 +27,7 @@
     "javacExecutablePath": {
       "type": "string",
       "default": "javac",
-      "description": "Path to the javac executable. This setting will be used to call the java-compiler. The entered value should be immediately callable on commandline. Example: `C:\\Program Files\\Java\\jdk1.6.0_16\\bin\\javac.exe`. Keep in mind that placeholders like `~` do **not** work. If your [path-variable](https://en.wikipedia.org/wiki/PATH_(variable)) is set properly it should not be necessary to change the default."
+      "description": "Path to the javac executable. This setting will be used to call the java-compiler. The entered value should be immediately callable on commandline. Example: `C:\\Program Files\\Java\\jdk1.6.0_16\\bin\\javac.exe`. Keep in mind that placeholders like `~` do **not** work. If your [path-variable](https://en.wikipedia.org/wiki/PATH_%28variable%29) is set properly it should not be necessary to change the default."
     },
     "additionalClasspaths": {
       "type": "string",
