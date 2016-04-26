@@ -3,6 +3,17 @@
 This package will lint your opened `.java`-files on save, using [javac][javac-docs].
 
 
+## Latest Changes
+
+- 1.8.1 - fixed outdated module-dependency (see [issue 85][iss85]).
+- 1.8.0 - introduced config-setting `verboseLogging` for debugging purposes; improved startup-speed.
+- 1.7.0 - improved startup-speed.
+
+### Planned Milestones
+
+- 2.0.0 - complete rewrite of linter-javac (see [issue 76][iss76]).
+
+
 ## Installation
 
 Ensure a working JDK is available in your environment (see FAQ) then enter the following on your command line:
@@ -49,10 +60,9 @@ You may place any directories classpath-file, delimited by your platform-specifi
 A linter configured by the above example will execute `javac` in the directory where the classpath-file resides, so that relative paths will be resolved in dependency to the classpath-file-position.
 
 
-## Frequently Asked Questions
+## Frequently Asked Questions & Troubleshooting
 
 Please take a look into our [FAQs at our wiki][faqs].
-
 
 ### Can I help?
 
@@ -63,6 +73,8 @@ Yes please! Give us feedback, file bugs or just help us coding - join us on http
 
 
 
+[iss85]: https://github.com/AtomLinter/linter-javac/issues/85
+[iss76]: https://github.com/AtomLinter/linter-javac/issues/76
 [javac-docs]: https://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html
 [wiki]: https://github.com/AtomLinter/linter-javac/wiki
 [project-manager]: https://atom.io/packages/project-manager

@@ -9,57 +9,9 @@ fs = null
 cpConfigFileName = '.classpath'
 
 module.exports =
-  # coffeelint: disable=max_line_length
-  config:
-    javacExecutablePath:
-      type: 'string'
-      description: 'Path to the javac executable. This setting will be used to
-      call the java-compiler. The entered value should be immediately callable
-      on commandline. Example: `C:\\Program Files\\Java\\jdk1.6.0_16\\bin\\javac.exe`.
-      Keep in mind that placeholders like `~` do **not** work. If your
-      [path-variable](https://en.wikipedia.org/wiki/PATH_\(variable\))
-      is set properly it should not be necessary to change the default.'
-      default: 'javac'
-    additionalClasspaths:
-      type: 'string'
-      description: 'Additional classpaths to be used (for the `-cp`-option)
-      when calling javac, separate multiple paths using the right
-      path-delimiter for your os (`:`/`;`).
-      Be aware that existing classpath-definitions from
-      the environment variable "CLASSPATH" will be merged into the argument,
-      as well as the content of your optional
-      [`.classpath`-files](https://atom.io/packages/linter-javac).
-      Example: `/path1:/path2` will become `javac -cp :/path1:/path2`.
-      Keep in mind that placeholders like `~` do **not** work.'
-      default: ''
-    additionalJavacOptions:
-      type: 'string'
-      default: ''
-      description: 'Your additional options will be inserted between
-      the javac-command and the sourcefiles. Example: `-d /root/class-cache`
-      will become `javac -Xlint:all -d /root/class-cache .../Test.java`
-      take a look to the
-      [javac-docs](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html)
-      for further information on valid options. Keep in mind that placeholders
-      like `~` do **not** work.'
-    classpathFilename:
-      type: 'string'
-      default: '.classpath'
-      description: 'You can change the default .classpath filename. This is a
-      useful option if You e.g. bump into conflicts with Eclipse users.'
-    javacArgsFilename:
-      type: 'string'
-      default: ''
-      description: 'Optionally you can define filename for a
-      [javac argsfile](https://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html#BHCCFGCD)
-      that is located alongside with the .classpath file in the same directory.
-      Contents of the argfile are passed to javac as arguments.'
-
-
   activate: (state) ->
     # state-object as preparation for user-notifications
     @state = if state then state or {}
-    @state = {}
 
     # language-patterns
     @patterns =
@@ -76,27 +28,40 @@ module.exports =
 
     require('atom-package-deps').install('linter-javac')
     @subscriptions = new CompositeDisposable
-    @subscriptions.add atom.config.observe 'linter-javac.javacExecutablePath',
-      (newValue) =>
-        @javaExecutablePath = newValue.trim()
-    @subscriptions.add atom.config.observe 'linter-javac.additionalClasspaths',
-      (newValue) =>
-        @classpath = newValue.trim()
-    @subscriptions.add atom.config.observe 'linter-javac.additionalJavacOptions',
-      (newValue) =>
-        trimmedValue = newValue.trim()
-        if trimmedValue
-          @additionalOptions = trimmedValue.split(/\s+/)
-        else
-          @additionalOptions = []
-    @subscriptions.add atom.config.observe 'linter-javac.classpathFilename',
-      (newValue) =>
-        @classpathFilename = newValue.trim()
-    @subscriptions.add atom.config.observe 'linter-javac.javacArgsFilename',
-      (newValue) =>
-        @javacArgsFilename = newValue.trim()
-
-  # coffeelint: enable=max_line_length
+    @subscriptions.add(
+      atom.config.observe 'linter-javac.javacExecutablePath',
+        (newValue) =>
+          @javaExecutablePath = newValue.trim()
+    )
+    @subscriptions.add(
+      atom.config.observe 'linter-javac.additionalClasspaths',
+        (newValue) =>
+          @classpath = newValue.trim()
+    )
+    @subscriptions.add(
+      atom.config.observe 'linter-javac.additionalJavacOptions',
+        (newValue) =>
+          trimmedValue = newValue.trim()
+          if trimmedValue
+            @additionalOptions = trimmedValue.split(/\s+/)
+          else
+            @additionalOptions = []
+      )
+    @subscriptions.add(
+      atom.config.observe 'linter-javac.classpathFilename',
+        (newValue) =>
+          @classpathFilename = newValue.trim()
+    )
+    @subscriptions.add(
+      atom.config.observe 'linter-javac.javacArgsFilename',
+        (newValue) =>
+          @javacArgsFilename = newValue.trim()
+    )
+    @subscriptions.add(
+      atom.config.observe 'linter-javac.verboseLogging',
+        (newValue) =>
+          @verboseLogging = (newValue == true)
+    )
 
   deactivate: ->
     @subscriptions.dispose()
@@ -112,6 +77,11 @@ module.exports =
       helpers = require 'atom-linter'
       voucher = require 'voucher'
       fs = require 'fs'
+      if @verboseLogging
+        @_log 'requiring modules finished.'
+
+    if @verboseLogging
+      @_log 'providing linter, examining javac-callability.'
 
     grammarScopes: ['source.java']
     scope: 'project'
@@ -122,6 +92,9 @@ module.exports =
       searchDir = @getProjectRootDir()
       # Classpath
       cp = ''
+
+      if @verboseLogging
+        @_log 'starting to lint.'
 
       # Find project config file if it exists.
       cpConfig = @findClasspathConfig(wd)
@@ -139,6 +112,11 @@ module.exports =
       # Add environment variable if it exists
       cp += path.delimiter + process.env.CLASSPATH if process.env.CLASSPATH
 
+      if @verboseLogging
+        @_log 'start searching java-files with "',
+          searchDir,
+          '" as search-directory.'
+
       atom.project.repositoryForDirectory(new Directory(searchDir))
         .then (repo) =>
           @getFilesEndingWith searchDir, '.java', repo?.isPathIgnored.bind(repo)
@@ -150,14 +128,29 @@ module.exports =
           # add additional options to the args-array
           if @additionalOptions.length > 0
             args = args.concat @additionalOptions
+            if @verboseLogging
+              @_log 'adding ',
+                @additionalOptions.length,
+                ' additional javac-options.'
+
+          if @verboseLogging
+            @_log 'collected the following arguments: ', args.join(' ')
 
           # add javac argsfile if filename has been configured
-          args.push('@' + @javacArgsFilename) if @javacArgsFilename
+          if @javacArgsFilename
+            args.push('@' + @javacArgsFilename)
+            if @verboseLogging
+              @_log 'adding ', @javacArgsFilename, ' as argsfile.'
 
           args.push.apply(args, files)
-
-
-
+          if @verboseLogging
+            @_log 'adding ',
+              files.length,
+              ' files to the javac-arguments (from "',
+              files[0],
+              '" to "',
+              files[files.length - 1]
+              '").'
 
           # TODO: remove this quick fix
           # count the size of expected execution-command
@@ -181,16 +174,26 @@ linter-javac: The lint-command is presumed to break the limit of #{cliLimit} cha
 Dropping #{args.length - sliceIndex} source files, as a result javac may not resolve all dependencies.
 """
             # coffeelint: enable=max_line_length
-            args.push(filePath)
-            args = args.slice(0, sliceIndex)
+            args = args.slice(0, sliceIndex) # cut args down
+            args.push(filePath) # ensure actual file is part
 
 
-
+          if @verboseLogging
+            @_log 'calling javac with ',
+              args.length,
+              ' arguments by invoking "', @javaExecutablePath,
+              '". The approximated command length is ',
+              args.join(' ').length,
+              ' characters long, the last argument is: ',
+              args[args.length - 1]
 
           # Execute javac
           helpers.exec(@javaExecutablePath, args, {stream: 'stderr', cwd: wd})
             .then (val) =>
+              if @verboseLogging
+                @_log 'parsing:\n', val
               @parse(val, textEditor)
+
 
   parse: (javacOutput, textEditor) ->
     languageCode = @_detectLanguageCode javacOutput
