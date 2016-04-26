@@ -12,7 +12,6 @@ module.exports =
   activate: (state) ->
     # state-object as preparation for user-notifications
     @state = if state then state or {}
-
     # language-patterns
     @patterns =
       en:
