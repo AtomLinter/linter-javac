@@ -5,9 +5,9 @@ This package will lint your opened `.java`-files on save, using [javac][javac-do
 
 ## Latest Changes
 
+- 1.9.0 - adds generic support for localized javac output, supports chinese (see [issue 36][iss36]).
 - 1.8.1 - fixed outdated module-dependency (see [issue 85][iss85]).
 - 1.8.0 - introduced config-setting `verboseLogging` for debugging purposes; improved startup-speed.
-- 1.7.0 - improved startup-speed.
 
 ### Planned Milestones
 
@@ -73,6 +73,7 @@ Yes please! Give us feedback, file bugs or just help us coding - join us on http
 
 
 
+[iss36]: https://github.com/AtomLinter/linter-javac/issues/36
 [iss85]: https://github.com/AtomLinter/linter-javac/issues/85
 [iss76]: https://github.com/AtomLinter/linter-javac/issues/76
 [javac-docs]: https://docs.oracle.com/javase/8/docs/technotes/tools/unix/javac.html
