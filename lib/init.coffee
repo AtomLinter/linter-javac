@@ -16,13 +16,13 @@ module.exports =
     @patterns =
       en:
         detector: /^\d+ (error|warning)s?$/gm
-        pattern: /^(.*\.java):(\d+): (error|warning):/
+        pattern: /^(.*\.java):(\d+): (error|warning): (.+)/
         translation:
           'error': 'error'
           'warning': 'warning'
       zh:
         detector: /^\d+ 个?(错误|警告)$/gm
-        pattern: /^(.*\.java):(\d+): (错误|警告):/
+        pattern: /^(.*\.java):(\d+): (错误|警告): (.+)/
         translation:
           '错误': 'error'
           '警告': 'warning'
