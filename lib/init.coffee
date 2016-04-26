@@ -62,6 +62,19 @@ module.exports =
     @state = if state then state or {}
     @state = {}
 
+    # language-patterns
+    @patterns =
+      en:
+        detector: /^\d+ (error|warning)s?$/gm
+        pattern: /^(.*\.java):(\d+): (error|warning):/
+        error: 'error'
+        warning: 'warning'
+      zh:
+        detector: /^\d+ 个?(错误|警告)$/gm
+        pattern: /^(.*\.java):(\d+): (错误|警告):/
+        error: '错误'
+        warning: '警告'
+
     require('atom-package-deps').install('linter-javac')
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.config.observe 'linter-javac.javacExecutablePath',
@@ -181,27 +194,35 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
               @parse(val, textEditor)
 
   parse: (javacOutput, textEditor) ->
-    # Regex to match the error/warning line
-    errRegex = /^(.*\.java):(\d+): ([\w \-]+): (.+)/
-    # This regex helps to estimate the column number based on the
-    #   caret (^) location.
-    caretRegex = /^( *)\^/
-    # Split into lines
-    lines = javacOutput.split /\r?\n/
+    languageCode = @_detectLanguageCode javacOutput
     messages = []
-    for line in lines
-      if line.match errRegex
-        [file, lineNum, type, mess] = line.match(errRegex)[1..4]
-        messages.push
-          type: type       # Should be "error" or "warning"
-          text: mess       # The error message
-          filePath: file   # Full path to file
-          range: [[lineNum - 1, 0], [lineNum - 1, 0]]
-      else if line.match caretRegex
-        column = line.match(caretRegex)[1].length
-        if messages.length > 0
-          messages[messages.length - 1].range[0][1] = column
-          messages[messages.length - 1].range[1][1] = column + 1
+    if languageCode
+      # This regex helps to estimate the column number based on the
+      #   caret (^) location.
+      @caretRegex ?= /^( *)\^/
+      # Split into lines
+      lines = javacOutput.split /\r?\n/
+
+      for line in lines
+        match = line.match @patterns[languageCode].pattern
+        if !!match
+          [file, lineNum, type, mess] = match
+          lineNum-- # Fix range-beginning
+          messages.push
+            type: type       # Should be "error" or "warning"
+            text: mess       # The error message
+            filePath: file   # Full path to file
+            range: [[lineNum, 0], [lineNum, 0]] # Set range-beginnings
+        else
+          match = line.match @caretRegex
+          if messages.length > 0 && !!match
+            column = match[1].length
+            lastIndex = messages.length - 1
+            messages[lastIndex].range[0][1] = column
+            messages[lastIndex].range[1][1] = column + 1
+      if @verboseLogging
+        @_log 'returning ', messages.length, ' linter-messages.'
+
     return messages
 
   getProjectRootDir: ->
@@ -260,3 +281,19 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
         d = path.dirname(d)
 
     return null
+
+  _detectLanguageCode: (javacOutput) ->
+    if @verboseLogging
+      @_log 'detecting languages'
+    for language, pattern of @patterns
+      if javacOutput.match(pattern.detector)
+        if @verboseLogging
+          @_log 'detected the following language-code: ', language
+        return language
+
+    return false
+
+  _log: (msgs...) ->
+    if (msgs.length > 0)
+      javacPrefix = 'linter-javac: '
+      console.log javacPrefix, msgs.join('')
