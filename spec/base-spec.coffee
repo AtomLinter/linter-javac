@@ -18,17 +18,17 @@ describe 'linter-javac', ->
 
   describe 'when using a faulty java-source file', ->
     beforeEach ->
-      javaFile = _path.join(__dirname, 'fixtures', 'BrokenWorld.java')
+      java_file = _path.join(__dirname, 'fixtures', 'BrokenWorld.java')
       waitsForPromise =>
-        atom.workspace.open(javaFile)
-        .then (whatever) =>
-          @texteditor = whatever
+        atom.workspace.open(java_file)
+        .then (newtextEditor) =>
+          @textEditor = newtextEditor
           @linter = require(_path.join(__dirname, '..', 'lib', 'init.coffee'))
-          .provideLinter()
+            .provideLinter()
 
     it 'returns at least 8 messages in the linter-message-object', ->
       waitsForPromise( =>
-        @linter.lint(@texteditor).then( (messages) ->
+        @linter.lint(@textEditor).then( (messages) ->
           expect(messages.length).toBeGreaterThan(7)
         )
       )
@@ -37,32 +37,32 @@ describe 'linter-javac', ->
 
   describe 'when using a correct java-source file', ->
     beforeEach ->
-      javaFile = _path.join(__dirname, 'fixtures', 'HelloWorld.java')
+      java_file = _path.join(__dirname, 'fixtures', 'HelloWorld.java')
       waitsForPromise =>
-        atom.workspace.open(javaFile)
-        .then (whatever) =>
-          @texteditor = whatever
+        atom.workspace.open(java_file)
+        .then (newtextEditor) =>
+          @textEditor = newtextEditor
           @linter = require(_path.join(__dirname, '..', 'lib', 'init.coffee'))
-          .provideLinter()
+            .provideLinter()
 
     it 'returns an empty linter-message-object', ->
       result = {}
-      expect(JSON.stringify(@linter.lint(@texteditor)))
+      expect(JSON.stringify(@linter.lint(@textEditor)))
         .toEqual(JSON.stringify(result))
 
 
 
   describe 'when using an empty java-source file', ->
     beforeEach ->
-      javaFile = _path.join(__dirname, 'fixtures', 'EmptyWorld.java')
+      java_file = _path.join(__dirname, 'fixtures', 'EmptyWorld.java')
       waitsForPromise =>
-        atom.workspace.open(javaFile)
-        .then (whatever) =>
-          @texteditor = whatever
+        atom.workspace.open(java_file)
+        .then (newtextEditor) =>
+          @textEditor = newtextEditor
           @linter = require(_path.join(__dirname, '..', 'lib', 'init.coffee'))
-          .provideLinter()
+            .provideLinter()
 
     it 'returns an empty linter-message-object', ->
       result = {}
-      expect(JSON.stringify(@linter.lint(@texteditor)))
+      expect(JSON.stringify(@linter.lint(@textEditor)))
         .toEqual(JSON.stringify(result))

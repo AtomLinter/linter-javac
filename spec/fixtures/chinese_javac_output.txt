@@ -1,0 +1,18 @@
+Welcome.java:14: 错误: 找不到符号
+    InputFilter hexInputFilter()
+    ^
+  符号:   类 InputFilter
+  位置: 类 Welcome
+Welcome.java:11: 错误: 程序包Systm不存在
+            Systm.out.println(g);
+                 ^
+Welcome.java:16: 错误: 找不到符号
+    return new InputFilter()
+               ^
+  符号:   类 InputFilter
+  位置: 类 Welcome
+Welcome.java:45: 警告: Welcome.ClassWithOverridingMethod中的varargsMethod(String[])覆盖了Welcome.ClassWithVarargsMethod中的varargsMethod(String...); 覆盖的方法缺少 '...'
+  void varargsMethod(String[] s) { }
+       ^
+3 个错误
+1 个警告
