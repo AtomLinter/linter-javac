@@ -209,7 +209,7 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
       for line in lines
         match = line.match @patterns[languageCode].pattern
         if !!match
-          [file, lineNum, type, mess] = match
+          [file, lineNum, type, mess] = match[1..4]
           lineNum-- # Fix range-beginning
           messages.push
             type: @patterns[languageCode].translation[type] || 'info'
