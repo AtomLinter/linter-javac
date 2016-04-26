@@ -17,13 +17,15 @@ module.exports =
       en:
         detector: /^\d+ (error|warning)s?$/gm
         pattern: /^(.*\.java):(\d+): (error|warning):/
-        error: 'error'
-        warning: 'warning'
+        translation:
+          'error': 'error'
+          'warning': 'warning'
       zh:
         detector: /^\d+ 个?(错误|警告)$/gm
         pattern: /^(.*\.java):(\d+): (错误|警告):/
-        error: '错误'
-        warning: '警告'
+        translation:
+          '错误': 'error'
+          '警告': 'warning'
 
     require('atom-package-deps').install('linter-javac')
     @subscriptions = new CompositeDisposable
@@ -210,7 +212,7 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
           [file, lineNum, type, mess] = match
           lineNum-- # Fix range-beginning
           messages.push
-            type: type       # Should be "error" or "warning"
+            type: @patterns[languageCode].translation[type] || 'info'
             text: mess       # The error message
             filePath: file   # Full path to file
             range: [[lineNum, 0], [lineNum, 0]] # Set range-beginnings
