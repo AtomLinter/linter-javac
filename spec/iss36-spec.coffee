@@ -33,3 +33,11 @@ describe 'linter-javac', ->
 
     it 'should detect all errors and warnings', ->
       expect(@linterBase.parse(@linter_output, @textEditor).length).toBe(4)
+
+    it 'should translate the first message-type to error', ->
+      firstMessage = @linterBase.parse(@linter_output, @textEditor)[0]
+      expect(firstMessage.type).toMatch('error')
+
+    it 'should translate the last message-type to warning', ->
+      firstMessage = @linterBase.parse(@linter_output, @textEditor)[3]
+      expect(firstMessage.type).toMatch('warning')
