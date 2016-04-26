@@ -8,7 +8,6 @@ fs = null
 
 cpConfigFileName = '.classpath'
 
-
 module.exports =
   # coffeelint: disable=max_line_length
   config:
