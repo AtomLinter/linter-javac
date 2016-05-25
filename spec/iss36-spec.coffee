@@ -1,5 +1,5 @@
-# This file contains all specs to ensure the base-functionality of
-# this plugin.
+# This file contains all dedicated to issue #94
+# see https://github.com/AtomLinter/linter-javac/issues/34
 
 _fs = require 'fs'
 _path = require 'path'
