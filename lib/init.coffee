@@ -90,7 +90,7 @@ module.exports =
     lint: (textEditor) =>
       filePath = textEditor.getPath()
       wd = path.dirname filePath
-      searchDir = @getProjectRootDir()
+      searchDir = @getProjectRootDir() || path.dirname filePath
       # Classpath
       cp = ''
 
@@ -118,9 +118,14 @@ module.exports =
           searchDir,
           '" as search-directory.'
 
-      atom.project.repositoryForDirectory(new Directory(searchDir))
+      lstats = fs.lstatSync searchDir
+
+      atom.project.repositoryForDirectory(
+        new Directory(searchDir, true)
+      )
         .then (repo) =>
-          @getFilesEndingWith searchDir, '.java', repo?.isPathIgnored.bind(repo)
+          @getFilesEndingWith searchDir,
+            '.java', repo?.isPathIgnored.bind(repo)
         .then (files) =>
           # Arguments to javac
           args = ['-Xlint:all']
@@ -130,24 +135,24 @@ module.exports =
           if @additionalOptions.length > 0
             args = args.concat @additionalOptions
             if @verboseLogging
-              @_log 'adding ',
+              @_log 'adding',
                 @additionalOptions.length,
-                ' additional javac-options.'
+                'additional javac-options.'
 
           if @verboseLogging
-            @_log 'collected the following arguments: ', args.join(' ')
+            @_log 'collected the following arguments:', args.join(' ')
 
           # add javac argsfile if filename has been configured
           if @javacArgsFilename
             args.push('@' + @javacArgsFilename)
             if @verboseLogging
-              @_log 'adding ', @javacArgsFilename, ' as argsfile.'
+              @_log 'adding', @javacArgsFilename, 'as argsfile.'
 
           args.push.apply(args, files)
           if @verboseLogging
-            @_log 'adding ',
+            @_log 'adding',
               files.length,
-              ' files to the javac-arguments (from "',
+              'files to the javac-arguments (from "',
               files[0],
               '" to "',
               files[files.length - 1]
@@ -171,21 +176,21 @@ module.exports =
           if sliceIndex < (args.length - 1)
             # coffeelint: disable=max_line_length
             console.warn """
-linter-javac: The lint-command is presumed to break the limit of #{cliLimit} characters on the #{_os.platform()}-platform.
-Dropping #{args.length - sliceIndex} source files, as a result javac may not resolve all dependencies.
-"""
+  linter-javac: The lint-command is presumed to break the limit of #{cliLimit} characters on the #{_os.platform()}-platform.
+  Dropping #{args.length - sliceIndex} source files, as a result javac may not resolve all dependencies.
+  """
             # coffeelint: enable=max_line_length
             args = args.slice(0, sliceIndex) # cut args down
             args.push(filePath) # ensure actual file is part
 
 
           if @verboseLogging
-            @_log 'calling javac with ',
+            @_log 'calling javac with',
               args.length,
-              ' arguments by invoking "', @javaExecutablePath,
-              '". The approximated command length is ',
+              'arguments by invoking "', @javaExecutablePath,
+              '". The approximated command length is',
               args.join(' ').length,
-              ' characters long, the last argument is: ',
+              'characters long, the last argument is:',
               args[args.length - 1]
 
           # Execute javac
@@ -194,7 +199,6 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
               if @verboseLogging
                 @_log 'parsing:\n', val
               @parse(val, textEditor)
-
 
   parse: (javacOutput, textEditor) ->
     languageCode = @_detectLanguageCode javacOutput
@@ -224,7 +228,7 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
             messages[lastIndex].range[0][1] = column
             messages[lastIndex].range[1][1] = column + 1
       if @verboseLogging
-        @_log 'returning ', messages.length, ' linter-messages.'
+        @_log 'returning', messages.length, 'linter-messages.'
 
     return messages
 
@@ -232,7 +236,7 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
     textEditor = atom.workspace.getActiveTextEditor()
     if !textEditor || !textEditor.getPath()
       # default to building the first one if no editor is active
-      if (0 == atom.project.getPaths().length)
+      if not atom.project.getPaths().length
         return false
 
       return atom.project.getPaths()[0]
@@ -242,6 +246,7 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
       .sort((a, b) -> (b.length - a.length))
       .find (p) ->
         realpath = fs.realpathSync(p)
+        # TODO: The following fails if there's a symlink in the path
         return textEditor.getPath().substr(0, realpath.length) == realpath
 
   getFilesEndingWith: (startPath, endsWith, ignoreFn) ->
@@ -291,7 +296,7 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
     for language, pattern of @patterns
       if javacOutput.match(pattern.detector)
         if @verboseLogging
-          @_log 'detected the following language-code: ', language
+          @_log 'detected the following language-code:', language
         return language
 
     return false
@@ -299,4 +304,4 @@ Dropping #{args.length - sliceIndex} source files, as a result javac may not res
   _log: (msgs...) ->
     if (msgs.length > 0)
       javacPrefix = 'linter-javac: '
-      console.log javacPrefix, msgs.join('')
+      console.log javacPrefix + msgs.join(' ')
