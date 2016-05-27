@@ -5,7 +5,7 @@ This package will lint your opened `.java`-files on save, using [javac][javac-do
 
 ## Latest Changes
 
-- 1.9.2 - Fixes faulty handling of symbolic links in the files path (see [issue 94][iss94]).
+- 1.9.2|3 - Fixes faulty handling of symbolic links in the files path (see [issue 94][iss94]).
 - 1.9.1 - Hotfixes a bug introduced by 1.9.0.
 - 1.9.0 - Adds generic support for localized javac output, supports chinese (see [issue 36][iss36]).
 
