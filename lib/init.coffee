@@ -121,7 +121,7 @@ module.exports =
       lstats = fs.lstatSync searchDir
 
       atom.project.repositoryForDirectory(
-        new Directory(searchDir, true)
+        new Directory(searchDir, lstats.isSymbolicLink())
       )
         .then (repo) =>
           @getFilesEndingWith searchDir,
