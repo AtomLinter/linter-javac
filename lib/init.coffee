@@ -194,7 +194,11 @@ module.exports =
               args[args.length - 1]
 
           # Execute javac
-          helpers.exec(@javaExecutablePath, args, {stream: 'stderr', cwd: wd})
+          helpers.exec(@javaExecutablePath, args, {
+            stream: 'stderr',
+            cwd: wd,
+            allowEmptyStderr: true
+          })
             .then (val) =>
               if @verboseLogging
                 @_log 'parsing:\n', val

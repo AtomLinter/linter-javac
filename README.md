@@ -5,6 +5,7 @@ This package will lint your opened `.java`-files on save, using [javac][javac-do
 
 ## Latest Changes
 
+- 1.9.4 - Hotfixes exception after empty stderr-output (see [issue 96][iss96]).
 - 1.9.2|3 - Fixes faulty handling of symbolic links in the files path (see [issue 94][iss94]).
 - 1.9.1 - Hotfixes a bug introduced by 1.9.0.
 - 1.9.0 - Adds generic support for localized javac output, supports chinese (see [issue 36][iss36]).
@@ -73,6 +74,7 @@ Yes please! Give us feedback, file bugs or just help us coding - join us on http
 
 
 
+[iss96]: https://github.com/AtomLinter/linter-javac/issues/96
 [iss94]: https://github.com/AtomLinter/linter-javac/issues/94
 [iss36]: https://github.com/AtomLinter/linter-javac/issues/36
 [iss76]: https://github.com/AtomLinter/linter-javac/issues/76
