@@ -147,7 +147,11 @@ module.exports =
       args.push(filePath)
 
       # Execute javac
-      helpers.exec(@javaExecutablePath, args, {stream: 'stderr', cwd: wd})
+      helpers.exec(@javaExecutablePath, args, {
+        stream: 'stderr',
+        cwd: wd,
+        allowEmptyStderr: true
+      })
         .then (val) =>
           @_log 'parsing:\n', val
           @parse(val, textEditor)
