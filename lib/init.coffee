@@ -87,7 +87,7 @@ module.exports =
 
     grammarScopes: ['source.java']
     scope: 'project'
-    lintOnFly: false       # Only lint on save
+    lintsOnChange: false       # Only lint on save
 
     lint: (textEditor) =>
       filePath = textEditor.getPath()
@@ -172,17 +172,18 @@ module.exports =
           [file, lineNum, type, mess] = match[1..4]
           lineNum-- # Fix range-beginning
           messages.push
-            type: @patterns[languageCode].translation[type] || 'info'
-            text: mess       # The error message
-            filePath: file   # Full path to file
-            range: [[lineNum, 0], [lineNum, 0]] # Set range-beginnings
+            severity: @patterns[languageCode].translation[type] || 'info'
+            excerpt: mess       # The error message
+            location:
+              file: file   # Full path to file
+              position: [[lineNum, 0], [lineNum, 0]] # Set range-beginnings
         else
           match = line.match @caretRegex
           if messages.length > 0 && !!match
             column = match[1].length
             lastIndex = messages.length - 1
-            messages[lastIndex].range[0][1] = column
-            messages[lastIndex].range[1][1] = column + 1
+            messages[lastIndex].location.position[0][1] = column
+            messages[lastIndex].location.position[1][1] = column + 1
       @_log 'returning', messages.length, 'linter-messages.'
 
     return messages
