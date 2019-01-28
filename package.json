@@ -23,6 +23,11 @@
   "package-deps": [
     "linter:2.0.0"
   ],
+  "renovate": {
+    "extends": [
+      "config:base"
+    ]
+  },
   "configSchema": {
     "javacExecutablePath": {
       "type": "string",
