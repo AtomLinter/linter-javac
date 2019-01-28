@@ -85,6 +85,7 @@ module.exports =
 
     @_log 'providing linter, examining javac-callability.'
 
+    name: 'linter-javac'
     grammarScopes: ['source.java']
     scope: 'project'
     lintsOnChange: false       # Only lint on save
