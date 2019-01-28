@@ -36,8 +36,8 @@ describe 'linter-javac', ->
 
     it 'should translate the first message-severity to error', ->
       firstMessage = @linterBase.parse(@linter_output, @textEditor)[0]
-      expect(firstMessage.severity).toMatch('error')
+      expect(firstMessage.severity).toBe('error')
 
     it 'should translate the last message-severity to warning', ->
       firstMessage = @linterBase.parse(@linter_output, @textEditor)[3]
-      expect(firstMessage.severity).toMatch('warning')
+      expect(firstMessage.severity).toBe('warning')
