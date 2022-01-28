@@ -92,10 +92,6 @@ module.exports =
 
     lint: (textEditor) =>
       filePath = textEditor.getPath()
-      # ORIGINAL:
-      # wd = path.dirname filePath
-      # HACK:
-      # (using project root dir as working dir for javac)
       wd = @getProjectRootDir() || path.dirname filePath
       searchDir = @getProjectRootDir() || path.dirname filePath
 
