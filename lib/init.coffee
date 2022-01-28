@@ -92,7 +92,7 @@ module.exports =
 
     lint: (textEditor) =>
       filePath = textEditor.getPath()
-      wd = path.dirname filePath
+      wd = @getProjectRootDir() || path.dirname filePath
       searchDir = @getProjectRootDir() || path.dirname filePath
 
       # Classpath
